@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layout :: layout('Dashboard', ~{::section})}">
+<section class="dashboard-page">
+    <div class="page-heading">
+        <div>
+            <p class="eyebrow">Panel financiero</p>
+            <h1>Dashboard financiero</h1>
+            <p class="page-description">Informacion consolidada desde cuentas, conceptos, transacciones, deudas y ahorros.</p>
+        </div>
+        <form class="dashboard-month-picker" th:action="@{/dashboard}" method="get">
+            <label for="dashboardMonth">Mes de metricas</label>
+            <div>
+                <i class="bi bi-calendar3"></i>
+                <input id="dashboardMonth" name="mes" type="month" th:value="${mesSeleccionado}" aria-label="Seleccionar mes del dashboard">
+                <button class="soft-action" type="submit">
+                    <span>Ver</span>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <section class="summary-strip" aria-label="Resumen financiero">
+        <div>
+            <span class="summary-label">Saldo general</span>
+            <strong th:text="${'$ ' + #numbers.formatDecimal(dashboard.saldoGeneral, 1, 'POINT', 2, 'COMMA')}">$ 0,00</strong>
+        </div>
+        <div>
+            <span class="summary-label">Balance del mes</span>
+            <strong th:text="${'$ ' + #numbers.formatDecimal(dashboard.balanceMes, 1, 'POINT', 2, 'COMMA')}">$ 0,00</strong>
+        </div>
+        <div>
+            <span class="summary-label">Transacciones registradas</span>
+            <strong th:text="${dashboard.cantidadTransacciones}">0</strong>
+        </div>
+    </section>
+
+    <div class="metric-grid">
+        <a class="metric-card clickable-card" th:href="@{/cuentas}">
+            <div class="metric-icon is-primary"><i class="bi bi-wallet2"></i></div>
+            <span>Saldo General</span>
+            <strong th:text="${'$ ' + #numbers.formatDecimal(dashboard.saldoGeneral, 1, 'POINT', 2, 'COMMA')}">$ 0,00</strong>
+            <small>Ver cuentas</small>
+        </a>
+        <a class="metric-card clickable-card" th:href="@{/transacciones(tipo='INGRESO')}">
+            <div class="metric-icon is-positive"><i class="bi bi-graph-up-arrow"></i></div>
+            <span>Ingresos del Mes</span>
+            <strong th:text="${'$ ' + #numbers.formatDecimal(dashboard.ingresosMes, 1, 'POINT', 2, 'COMMA')}">$ 0,00</strong>
+            <small>Ver ingresos</small>
+        </a>
+        <a class="metric-card clickable-card" th:href="@{/transacciones(tipo='GASTO')}">
+            <div class="metric-icon is-negative"><i class="bi bi-graph-down-arrow"></i></div>
+            <span>Gastos del Mes</span>
+            <strong th:text="${'$ ' + #numbers.formatDecimal(dashboard.gastosMes, 1, 'POINT', 2, 'COMMA')}">$ 0,00</strong>
+            <small>Ver gastos</small>
+        </a>
+        <a class="metric-card clickable-card" th:href="@{/dashboard}">
+            <div class="metric-icon is-warning"><i class="bi bi-bar-chart"></i></div>
+            <span>Balance del Mes</span>
+            <strong th:text="${'$ ' + #numbers.formatDecimal(dashboard.balanceMes, 1, 'POINT', 2, 'COMMA')}">$ 0,00</strong>
+            <small>Actualizar dashboard</small>
+        </a>
+    </div>
+
+    <div class="metric-grid secondary-grid">
+        <a class="metric-card compact clickable-card" th:href="@{/deudas}">
+            <span>Total Deudas</span>
+            <strong th:text="${'$ ' + #numbers.formatDecimal(dashboard.totalDeudas, 1, 'POINT', 2, 'COMMA')}">$ 0,00</strong>
+            <small th:text="${dashboard.cantidadDeudas + ' deudas activas'}">0 deudas activas</small>
+        </a>
+        <a class="metric-card compact clickable-card" th:href="@{/ahorros}">
+            <span>Total Ahorrado</span>
+            <strong th:text="${'$ ' + #numbers.formatDecimal(dashboard.totalAhorros, 1, 'POINT', 2, 'COMMA')}">$ 0,00</strong>
+            <small>Ver ahorros</small>
+        </a>
+        <a class="metric-card compact clickable-card" th:href="@{/transacciones}">
+            <span>Cantidad de Transacciones</span>
+            <strong th:text="${dashboard.cantidadTransacciones}">0</strong>
+            <small>Ver transacciones</small>
+        </a>
+        <a class="metric-card compact clickable-card" th:href="@{/ahorros}">
+            <span>Metas de Ahorro</span>
+            <strong th:text="${dashboard.cantidadMetasAhorro}">0</strong>
+            <small>Ver metas activas</small>
+        </a>
+    </div>
+
+    <div class="dashboard-panel chart-panel">
+        <div class="panel-header">
+            <div>
+                <h2>Ingresos vs Gastos</h2>
+                <p th:text="${'Comparativo de ' + #temporals.format(fechaReferencia, 'MMMM yyyy') + ' calculado desde transacciones.'}">
+                    Comparativo del mes seleccionado calculado desde transacciones.
+                </p>
+            </div>
+            <i class="bi bi-activity"></i>
+        </div>
+        <div class="comparison-grid" aria-label="Ingresos y gastos del mes">
+            <div class="comparison-item">
+                <span>Ingresos</span>
+                <strong class="text-positive" th:text="${'$ ' + #numbers.formatDecimal(dashboard.ingresosMes, 1, 'POINT', 2, 'COMMA')}">$ 0,00</strong>
+            </div>
+            <div class="comparison-item">
+                <span>Gastos</span>
+                <strong class="text-negative" th:text="${'$ ' + #numbers.formatDecimal(dashboard.gastosMes, 1, 'POINT', 2, 'COMMA')}">$ 0,00</strong>
+            </div>
+            <div class="comparison-item">
+                <span>Balance</span>
+                <strong th:text="${'$ ' + #numbers.formatDecimal(dashboard.balanceMes, 1, 'POINT', 2, 'COMMA')}">$ 0,00</strong>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-panel">
+        <div class="panel-header">
+            <div>
+                <h2>Resumen financiero</h2>
+                <p th:text="${'Lectura orientativa de ' + #temporals.format(fechaReferencia, 'MMMM yyyy') + ' desde el modulo de analisis.'}">
+                    Lectura orientativa del mes seleccionado desde el modulo de analisis.
+                </p>
+            </div>
+            <a class="soft-action" th:href="@{/analisis-financiero}">
+                <i class="bi bi-arrow-right"></i>
+                <span>Ver analisis completo</span>
+            </a>
+        </div>
+        <div class="comparison-grid">
+            <div class="comparison-item">
+                <span>Porcentaje gastado</span>
+                <strong th:text="${#numbers.formatDecimal(analisisResumen.porcentajeGastado, 1, 'POINT', 2, 'COMMA') + ' %'}">0 %</strong>
+            </div>
+            <div class="comparison-item">
+                <span>Capacidad de ahorro</span>
+                <strong th:text="${'$ ' + #numbers.formatDecimal(analisisResumen.capacidadAhorro, 1, 'POINT', 2, 'COMMA')}">$ 0,00</strong>
+            </div>
+            <div class="comparison-item">
+                <span>Nivel financiero</span>
+                <strong th:text="${analisisResumen.nivelFinancieroGeneral}">SIN DATOS</strong>
+            </div>
+            <div class="comparison-item">
+                <span>Alertas importantes</span>
+                <strong th:text="${analisisResumen.cantidadAlertas}">0</strong>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-panel split-panel">
+        <div class="panel-header">
+            <div>
+                <h2>Distribucion de Gastos</h2>
+                <p>El desglose por categoria se habilitara cuando el backend exponga esa agregacion.</p>
+            </div>
+            <i class="bi bi-pie-chart"></i>
+        </div>
+        <div class="empty-state">
+            <i class="bi bi-pie-chart"></i>
+            <strong th:text="${'$ ' + #numbers.formatDecimal(dashboard.gastosMes, 1, 'POINT', 2, 'COMMA')}">$ 0,00</strong>
+            <span>Total de gastos del mes disponible desde el DashboardDTO.</span>
+        </div>
+    </div>
+
+    <div class="dashboard-panel">
+        <div class="panel-header">
+            <div>
+                <h2>Ultimas Transacciones</h2>
+                <p>Ultimos movimientos registrados en el sistema.</p>
+            </div>
+            <a class="soft-action" th:href="@{/transacciones}">
+                <i class="bi bi-arrow-right"></i>
+                <span>Ver todo</span>
+            </a>
+        </div>
+        <div class="transaction-list" th:if="${!#lists.isEmpty(dashboard.ultimasTransacciones)}">
+            <article class="transaction-item" th:each="transaccion : ${dashboard.ultimasTransacciones}">
+                <div class="transaction-icon"
+                     th:classappend="${transaccion.concepto.tipo.name() == 'INGRESO'} ? ' income' : ' expense'">
+                    <i th:class="${transaccion.concepto.tipo.name() == 'INGRESO'} ? 'bi bi-arrow-down-left' : 'bi bi-arrow-up-right'"></i>
+                </div>
+                <div>
+                    <strong th:text="${transaccion.concepto.nombre}">Concepto</strong>
+                    <span>
+                        <span th:text="${transaccion.cuenta.nombre}">Cuenta</span>
+                        <span> - </span>
+                        <span th:text="${#temporals.format(transaccion.fecha, 'dd/MM/yyyy')}">Fecha</span>
+                    </span>
+                </div>
+                <b th:class="${transaccion.concepto.tipo.name() == 'INGRESO'} ? 'text-positive' : 'text-negative'"
+                   th:text="${(transaccion.concepto.tipo.name() == 'INGRESO' ? '+ $ ' : '- $ ') + #numbers.formatDecimal(transaccion.valor, 1, 'POINT', 2, 'COMMA')}">
+                    $ 0,00
+                </b>
+            </article>
+        </div>
+        <div class="empty-state" th:if="${#lists.isEmpty(dashboard.ultimasTransacciones)}">
+            <i class="bi bi-arrow-left-right"></i>
+            <strong>No hay transacciones registradas</strong>
+            <span>Cuando existan movimientos, apareceran aqui automaticamente.</span>
+        </div>
+    </div>
+</section>
+</html>

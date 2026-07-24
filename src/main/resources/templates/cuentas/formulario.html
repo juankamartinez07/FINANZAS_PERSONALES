@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layout :: layout(${tituloFormulario}, ~{::section})}">
+<section class="accounts-page">
+    <div class="page-heading">
+        <div>
+            <p class="eyebrow">Cuentas</p>
+            <h1 th:text="${tituloFormulario}">Cuenta</h1>
+            <p class="page-description">Define el nombre de la cuenta. El saldo se calcula automaticamente desde las transacciones.</p>
+        </div>
+        <a class="soft-action" th:href="@{/cuentas}">
+            <i class="bi bi-arrow-left"></i>
+            <span>Volver al listado</span>
+        </a>
+    </div>
+
+    <div class="alert alert-danger" role="alert" th:if="${mensajeError}" th:text="${mensajeError}"></div>
+
+    <form class="account-form-card" method="post" th:action="${formAction}" th:object="${cuenta}">
+        <div class="form-grid account-form-grid">
+            <div class="form-field">
+                <label for="nombre">Nombre</label>
+                <input id="nombre" type="text" th:field="*{nombre}" maxlength="100" required placeholder="Ej. Cuenta principal">
+            </div>
+            <div class="form-field" th:if="${mostrarActivo}">
+                <label for="activo">Estado</label>
+                <select id="activo" th:field="*{activo}">
+                    <option th:value="true">Activa</option>
+                    <option th:value="false">Inactiva</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-actions">
+            <a class="soft-action" th:href="@{/cuentas}">Cancelar</a>
+            <button class="soft-action primary-action" type="submit">
+                <i class="bi bi-check2"></i>
+                <span>Guardar cuenta</span>
+            </button>
+        </div>
+    </form>
+</section>
+</html>

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layout :: layout('Transacciones', ~{::section})}">
+<section class="transactions-page">
+    <div class="page-heading">
+        <div>
+            <p class="eyebrow">Movimientos</p>
+            <h1>Transacciones</h1>
+            <p class="page-description">Consulta, filtra y administra los ingresos y gastos registrados en tus cuentas.</p>
+        </div>
+        <a class="soft-action primary-action" th:href="@{/transacciones/nueva}">
+            <i class="bi bi-plus-lg"></i>
+            <span>Nueva transaccion</span>
+        </a>
+    </div>
+
+    <div class="alert alert-success" role="alert" th:if="${mensajeExito}" th:text="${mensajeExito}"></div>
+    <div class="alert alert-danger" role="alert" th:if="${mensajeError}" th:text="${mensajeError}"></div>
+
+    <section class="transactions-filter-panel">
+        <form th:action="@{/transacciones}" method="get" class="filters-grid">
+            <div class="filter-field search-field">
+                <label for="buscar">Buscar</label>
+                <div class="input-with-icon">
+                    <i class="bi bi-search"></i>
+                    <input id="buscar" name="buscar" type="search" th:value="${buscar}" placeholder="Concepto, cuenta u observacion">
+                </div>
+            </div>
+            <div class="filter-field">
+                <label for="tipo">Tipo</label>
+                <select id="tipo" name="tipo">
+                    <option value="">Todos</option>
+                    <option th:each="tipoItem : ${tipos}"
+                            th:value="${tipoItem}"
+                            th:text="${tipoItem}"
+                            th:selected="${tipoSeleccionado != null and tipoSeleccionado == tipoItem}">
+                        INGRESO
+                    </option>
+                </select>
+            </div>
+            <div class="filter-field">
+                <label for="cuenta">Cuenta</label>
+                <select id="cuenta" name="cuenta">
+                    <option value="">Todas</option>
+                    <option th:each="cuentaItem : ${cuentas}"
+                            th:value="${cuentaItem.idCuenta}"
+                            th:text="${cuentaItem.nombre}"
+                            th:selected="${cuentaSeleccionada != null and cuentaSeleccionada == cuentaItem.idCuenta}">
+                        Cuenta
+                    </option>
+                </select>
+            </div>
+            <div class="filter-field">
+                <label for="concepto">Concepto</label>
+                <select id="concepto" name="concepto">
+                    <option value="">Todos</option>
+                    <option th:each="conceptoItem : ${conceptos}"
+                            th:value="${conceptoItem.idConcepto}"
+                            th:text="${conceptoItem.nombre}"
+                            th:selected="${conceptoSeleccionado != null and conceptoSeleccionado == conceptoItem.idConcepto}">
+                        Concepto
+                    </option>
+                </select>
+            </div>
+            <div class="filter-field">
+                <label for="desde">Desde</label>
+                <input id="desde" name="desde" type="date" th:value="${desde}">
+            </div>
+            <div class="filter-field">
+                <label for="hasta">Hasta</label>
+                <input id="hasta" name="hasta" type="date" th:value="${hasta}">
+            </div>
+            <div class="filter-actions">
+                <button class="soft-action primary-action" type="submit">
+                    <i class="bi bi-funnel"></i>
+                    <span>Filtrar</span>
+                </button>
+                <a class="soft-action" th:href="@{/transacciones}" th:if="${hayFiltros}">
+                    <i class="bi bi-x-lg"></i>
+                    <span>Limpiar</span>
+                </a>
+            </div>
+        </form>
+    </section>
+
+    <div class="transactions-summary-grid">
+        <article class="summary-card income">
+            <span>Total ingresos</span>
+            <strong th:text="${'$ ' + #numbers.formatDecimal(resumen.totalIngresos, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+        </article>
+        <article class="summary-card expense">
+            <span>Total gastos</span>
+            <strong th:text="${'$ ' + #numbers.formatDecimal(resumen.totalGastos, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+        </article>
+        <article class="summary-card balance">
+            <span>Balance</span>
+            <strong th:text="${'$ ' + #numbers.formatDecimal(resumen.balance, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+        </article>
+        <article class="summary-card count">
+            <span>Movimientos</span>
+            <strong th:text="${resumen.cantidadMovimientos}">0</strong>
+        </article>
+    </div>
+
+    <section class="transactions-list-panel" th:if="${!#lists.isEmpty(transacciones)}">
+        <div class="transactions-table-wrap">
+            <table class="transactions-table">
+                <thead>
+                <tr>
+                    <th>Concepto</th>
+                    <th>Tipo</th>
+                    <th>Cuenta</th>
+                    <th>Fecha</th>
+                    <th>Observacion</th>
+                    <th class="text-end">Valor</th>
+                    <th class="text-end">Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="transaccion : ${transacciones}">
+                    <td>
+                        <strong th:text="${transaccion.concepto.nombre}">Concepto</strong>
+                    </td>
+                    <td>
+                        <span class="type-pill"
+                              th:classappend="${transaccion.concepto.tipo.name() == 'INGRESO'} ? ' income' : ' expense'">
+                            <i th:class="${transaccion.concepto.tipo.name() == 'INGRESO'} ? 'bi bi-arrow-down-left' : 'bi bi-arrow-up-right'"></i>
+                            <span th:text="${transaccion.concepto.tipo}">TIPO</span>
+                        </span>
+                    </td>
+                    <td th:text="${transaccion.cuenta.nombre}">Cuenta</td>
+                    <td th:text="${#temporals.format(transaccion.fecha, 'dd/MM/yyyy')}">Fecha</td>
+                    <td class="observation-cell" th:text="${transaccion.observacion ?: 'Sin observacion'}">Observacion</td>
+                    <td class="text-end">
+                        <strong th:class="${transaccion.concepto.tipo.name() == 'INGRESO'} ? 'money income' : 'money expense'"
+                                th:text="${(transaccion.concepto.tipo.name() == 'INGRESO' ? '+ $ ' : '- $ ') + #numbers.formatDecimal(transaccion.valor, 1, 'POINT', 0, 'COMMA')}">
+                            $ 0
+                        </strong>
+                    </td>
+                    <td class="text-end">
+                        <div class="row-actions">
+                            <a class="icon-button" th:href="@{/transacciones/editar/{id}(id=${transaccion.idTransaccion})}" aria-label="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <button class="icon-button danger-action" type="button"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#deleteTransactionModal"
+                                    th:data-delete-url="@{/transacciones/eliminar/{id}(id=${transaccion.idTransaccion})}"
+                                    th:data-delete-name="${transaccion.concepto.nombre}">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="transactions-card-list">
+            <article class="transaction-mobile-card" th:each="transaccion : ${transacciones}">
+                <div class="mobile-card-top">
+                    <div>
+                        <strong th:text="${transaccion.concepto.nombre}">Concepto</strong>
+                        <span th:text="${transaccion.cuenta.nombre + ' - ' + #temporals.format(transaccion.fecha, 'dd/MM/yyyy')}">Cuenta</span>
+                    </div>
+                    <b th:class="${transaccion.concepto.tipo.name() == 'INGRESO'} ? 'money income' : 'money expense'"
+                       th:text="${(transaccion.concepto.tipo.name() == 'INGRESO' ? '+ $ ' : '- $ ') + #numbers.formatDecimal(transaccion.valor, 1, 'POINT', 0, 'COMMA')}">
+                        $ 0
+                    </b>
+                </div>
+                <div class="mobile-card-meta">
+                    <span class="type-pill"
+                          th:classappend="${transaccion.concepto.tipo.name() == 'INGRESO'} ? ' income' : ' expense'">
+                        <i th:class="${transaccion.concepto.tipo.name() == 'INGRESO'} ? 'bi bi-arrow-down-left' : 'bi bi-arrow-up-right'"></i>
+                        <span th:text="${transaccion.concepto.tipo}">TIPO</span>
+                    </span>
+                    <span th:text="${transaccion.observacion ?: 'Sin observacion'}">Observacion</span>
+                </div>
+                <div class="mobile-actions">
+                    <a class="soft-action" th:href="@{/transacciones/editar/{id}(id=${transaccion.idTransaccion})}">
+                        <i class="bi bi-pencil"></i>
+                        <span>Editar</span>
+                    </a>
+                    <button class="soft-action danger-action" type="button"
+                            data-bs-toggle="modal"
+                            data-bs-target="#deleteTransactionModal"
+                            th:data-delete-url="@{/transacciones/eliminar/{id}(id=${transaccion.idTransaccion})}"
+                            th:data-delete-name="${transaccion.concepto.nombre}">
+                        <i class="bi bi-trash"></i>
+                        <span>Eliminar</span>
+                    </button>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <section class="empty-state transactions-empty" th:if="${#lists.isEmpty(transacciones)}">
+        <i class="bi bi-arrow-left-right"></i>
+        <strong>No hay transacciones para mostrar</strong>
+        <span th:text="${hayFiltros} ? 'No se encontraron movimientos con los filtros aplicados.' : 'Registra tu primer ingreso o gasto para empezar.'">
+            No hay movimientos.
+        </span>
+        <div class="empty-actions">
+            <a class="soft-action primary-action" th:href="@{/transacciones/nueva}">
+                <i class="bi bi-plus-lg"></i>
+                <span>Nueva transaccion</span>
+            </a>
+            <a class="soft-action" th:href="@{/transacciones}" th:if="${hayFiltros}">
+                <i class="bi bi-x-lg"></i>
+                <span>Limpiar filtros</span>
+            </a>
+        </div>
+    </section>
+
+    <div class="modal fade" id="deleteTransactionModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5">Eliminar transaccion</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Confirma que deseas eliminar esta transaccion.</p>
+                    <strong data-delete-label></strong>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="soft-action" data-bs-dismiss="modal">Cancelar</button>
+                    <form method="post" data-delete-form>
+                        <button type="submit" class="soft-action danger-action">
+                            <i class="bi bi-trash"></i>
+                            <span>Eliminar</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layout :: layout(${tituloFormulario}, ~{::section})}">
+<section class="savings-page">
+    <div class="page-heading">
+        <div>
+            <p class="eyebrow">Ahorros</p>
+            <h1 th:text="${tituloFormulario}">Meta</h1>
+            <p class="page-description">Define el objetivo y actualiza el valor ahorrado desde la edicion de la meta.</p>
+        </div>
+        <a class="soft-action" th:href="@{/ahorros}">
+            <i class="bi bi-arrow-left"></i>
+            <span>Volver al listado</span>
+        </a>
+    </div>
+
+    <div class="alert alert-danger" role="alert" th:if="${mensajeError}" th:text="${mensajeError}"></div>
+
+    <form class="saving-form-card" method="post" th:action="${formAction}" th:object="${ahorro}" data-saving-form>
+        <div class="form-grid saving-form-grid">
+            <div class="form-field">
+                <label for="nombre">Nombre</label>
+                <input id="nombre" type="text" th:field="*{nombre}" required maxlength="120" placeholder="Ej. Fondo de emergencia">
+            </div>
+            <div class="form-field">
+                <label for="meta">Valor objetivo</label>
+                <input id="meta" type="number" th:field="*{meta}" min="1" step="0.01" required data-saving-target>
+            </div>
+            <div class="form-field">
+                <label for="ahorroActual">Valor ahorrado</label>
+                <input id="ahorroActual" type="number" th:field="*{ahorroActual}" min="0" step="0.01" required data-saving-current>
+            </div>
+            <div class="form-field">
+                <label for="porcentajeRecomendado">Porcentaje recomendado</label>
+                <input id="porcentajeRecomendado" type="number" th:field="*{porcentajeRecomendado}" min="0" max="100" step="1" placeholder="Opcional">
+            </div>
+            <div class="form-field full-field">
+                <label for="descripcion">Descripcion</label>
+                <textarea id="descripcion" th:field="*{descripcion}" rows="3" maxlength="255" placeholder="Detalle opcional de la meta"></textarea>
+            </div>
+            <div class="form-field" th:if="${mostrarActivo}">
+                <label for="activo">Estado</label>
+                <select id="activo" th:field="*{activo}">
+                    <option th:value="true">Activa</option>
+                    <option th:value="false">Inactiva</option>
+                </select>
+            </div>
+        </div>
+
+        <section class="saving-form-progress">
+            <div>
+                <span>Avance estimado</span>
+                <strong data-saving-progress-label>0 %</strong>
+            </div>
+            <div class="saving-progress" data-saving-progress-bar style="--progress: 0%;">
+                <span></span>
+            </div>
+        </section>
+
+        <div class="form-actions">
+            <a class="soft-action" th:href="@{/ahorros}">Cancelar</a>
+            <button class="soft-action primary-action" type="submit">
+                <i class="bi bi-check2"></i>
+                <span>Guardar meta</span>
+            </button>
+        </div>
+    </form>
+</section>
+</html>

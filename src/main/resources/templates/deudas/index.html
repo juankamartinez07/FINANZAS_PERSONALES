@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layout :: layout('Deudas', ~{::section})}">
+<section class="debts-page">
+    <div class="page-heading">
+        <div>
+            <p class="eyebrow">Obligaciones</p>
+            <h1>Deudas</h1>
+            <p class="page-description">Consulta saldos pendientes, vencimientos y progreso de pago de tus obligaciones.</p>
+        </div>
+        <a class="soft-action primary-action" th:href="@{/deudas/nueva}">
+            <i class="bi bi-plus-lg"></i>
+            <span>Nueva deuda</span>
+        </a>
+    </div>
+
+    <div class="alert alert-success" role="alert" th:if="${mensajeExito}" th:text="${mensajeExito}"></div>
+    <div class="alert alert-info" role="alert" th:if="${mensajeInfo}" th:text="${mensajeInfo}"></div>
+    <div class="alert alert-danger" role="alert" th:if="${mensajeError}" th:text="${mensajeError}"></div>
+
+    <div class="debts-summary-grid">
+        <article class="debt-summary-card">
+            <span>Saldo pendiente activo</span>
+            <strong th:text="${'$ ' + #numbers.formatDecimal(resumen.totalSaldoPendienteActivo, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+        </article>
+        <article class="debt-summary-card">
+            <span>Total pagado</span>
+            <strong th:text="${'$ ' + #numbers.formatDecimal(resumen.totalPagado, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+        </article>
+        <article class="debt-summary-card">
+            <span>Deudas activas</span>
+            <strong th:text="${resumen.cantidadDeudasActivas}">0</strong>
+        </article>
+        <article class="debt-summary-card">
+            <span>Deudas vencidas</span>
+            <strong th:text="${resumen.cantidadDeudasVencidas}">0</strong>
+        </article>
+        <article class="debt-summary-card">
+            <span>Cuotas minimas</span>
+            <strong th:text="${'$ ' + #numbers.formatDecimal(resumen.totalCuotasMinimas, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+        </article>
+    </div>
+
+    <section class="debts-filter-panel">
+        <form th:action="@{/deudas}" method="get" class="debts-filters">
+            <div class="filter-field">
+                <label for="buscar">Buscar</label>
+                <div class="input-with-icon">
+                    <i class="bi bi-search"></i>
+                    <input id="buscar" name="buscar" type="search" th:value="${buscar}" placeholder="Nombre, entidad o cuenta">
+                </div>
+            </div>
+            <div class="filter-field">
+                <label for="estado">Estado</label>
+                <select id="estado" name="estado">
+                    <option value="">Todas</option>
+                    <option value="ACTIVA" th:selected="${estadoSeleccionado == 'ACTIVA'}">Activas</option>
+                    <option value="PAGADA" th:selected="${estadoSeleccionado == 'PAGADA'}">Pagadas</option>
+                    <option value="PROXIMA A VENCER" th:selected="${estadoSeleccionado == 'PROXIMA A VENCER'}">Proximas a vencer</option>
+                    <option value="VENCIDA" th:selected="${estadoSeleccionado == 'VENCIDA'}">Vencidas</option>
+                    <option value="INACTIVA" th:selected="${estadoSeleccionado == 'INACTIVA'}">Inactivas</option>
+                </select>
+            </div>
+            <div class="filter-field">
+                <label for="cuenta">Cuenta</label>
+                <select id="cuenta" name="cuenta">
+                    <option value="">Todas</option>
+                    <option th:each="cuentaItem : ${cuentas}"
+                            th:value="${cuentaItem.idCuenta}"
+                            th:text="${cuentaItem.nombre}"
+                            th:selected="${cuentaSeleccionada != null and cuentaSeleccionada == cuentaItem.idCuenta}">
+                        Cuenta
+                    </option>
+                </select>
+            </div>
+            <div class="filter-actions">
+                <button class="soft-action primary-action" type="submit">
+                    <i class="bi bi-funnel"></i>
+                    <span>Filtrar</span>
+                </button>
+                <a class="soft-action" th:href="@{/deudas}" th:if="${hayFiltros}">
+                    <i class="bi bi-x-lg"></i>
+                    <span>Limpiar</span>
+                </a>
+            </div>
+        </form>
+    </section>
+
+    <section class="debts-grid" th:if="${!#lists.isEmpty(deudas)}">
+        <article class="debt-card" th:each="deuda : ${deudas}" th:classappend="${' state-' + #strings.toLowerCase(#strings.replace(deuda.estadoVisual, ' ', '-'))}">
+            <div class="debt-card-top">
+                <div>
+                    <span class="debt-entity" th:text="${deuda.entidad}">Entidad</span>
+                    <h2 th:text="${deuda.nombre}">Deuda</h2>
+                </div>
+                <span class="debt-state-pill" th:classappend="${' state-' + #strings.toLowerCase(#strings.replace(deuda.estadoVisual, ' ', '-'))}">
+                    <i th:class="${deuda.estadoVisual == 'INACTIVA' ? 'bi bi-pause-circle' : (deuda.estadoVisual == 'PAGADA' ? 'bi bi-check-circle' : (deuda.estadoVisual == 'VENCIDA' ? 'bi bi-exclamation-triangle' : (deuda.estadoVisual == 'PROXIMA A VENCER' ? 'bi bi-clock' : 'bi bi-circle')))}"></i>
+                    <span th:text="${deuda.estadoVisual}">ACTIVA</span>
+                </span>
+            </div>
+
+            <div class="debt-main-value">
+                <span>Saldo pendiente</span>
+                <strong th:text="${'$ ' + #numbers.formatDecimal(deuda.saldoActual, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+            </div>
+
+            <dl class="debt-data-grid">
+                <div>
+                    <dt>Cuenta</dt>
+                    <dd th:text="${deuda.nombreCuenta}">Cuenta</dd>
+                </div>
+                <div>
+                    <dt>Saldo inicial</dt>
+                    <dd th:text="${'$ ' + #numbers.formatDecimal(deuda.saldoInicial, 1, 'POINT', 0, 'COMMA')}">$ 0</dd>
+                </div>
+                <div>
+                    <dt>Valor pagado</dt>
+                    <dd th:text="${'$ ' + #numbers.formatDecimal(deuda.valorPagado, 1, 'POINT', 0, 'COMMA')}">$ 0</dd>
+                </div>
+                <div>
+                    <dt>Cuota minima</dt>
+                    <dd th:text="${'$ ' + #numbers.formatDecimal(deuda.cuotaMinima, 1, 'POINT', 0, 'COMMA')}">$ 0</dd>
+                </div>
+                <div>
+                    <dt>Vencimiento</dt>
+                    <dd th:text="${deuda.fechaVencimiento != null ? #temporals.format(deuda.fechaVencimiento, 'dd/MM/yyyy') : 'Sin fecha'}">Sin fecha</dd>
+                </div>
+            </dl>
+
+            <div class="debt-progress-block">
+                <div>
+                    <span>Progreso de pago</span>
+                    <strong th:text="${#numbers.formatDecimal(deuda.porcentajePagado, 1, 'POINT', 0, 'COMMA') + ' %'}">0 %</strong>
+                </div>
+                <div class="debt-progress" th:style="${'--progress:' + deuda.porcentajePagado + '%'}">
+                    <span></span>
+                </div>
+            </div>
+
+            <p class="debt-warning" th:if="${deuda.estadoVisual == 'VENCIDA'}">
+                <i class="bi bi-exclamation-triangle"></i>
+                Esta deuda esta vencida.
+            </p>
+
+            <div class="debt-actions">
+                <a class="soft-action" th:href="@{/deudas/{id}(id=${deuda.idDeuda})}">
+                    <i class="bi bi-eye"></i>
+                    <span>Detalle</span>
+                </a>
+                <a class="soft-action" th:href="@{/deudas/editar/{id}(id=${deuda.idDeuda})}">
+                    <i class="bi bi-pencil"></i>
+                    <span>Editar</span>
+                </a>
+                <button class="soft-action" type="button"
+                        th:classappend="${deuda.activo} ? ' danger-action' : ''"
+                        data-bs-toggle="modal"
+                        data-bs-target="#debtStatusModal"
+                        th:data-status-url="@{/deudas/{id}/estado(id=${deuda.idDeuda})}"
+                        th:data-debt-name="${deuda.nombre}"
+                        th:data-debt-active="${deuda.activo}">
+                    <i th:class="${deuda.activo} ? 'bi bi-pause-circle' : 'bi bi-check-circle'"></i>
+                    <span th:text="${deuda.activo} ? 'Desactivar' : 'Activar'">Estado</span>
+                </button>
+            </div>
+        </article>
+    </section>
+
+    <section class="empty-state" th:if="${#lists.isEmpty(deudas)}">
+        <i class="bi bi-receipt"></i>
+        <strong th:text="${hayFiltros} ? 'No se encontraron deudas' : 'No tienes deudas registradas'">No tienes deudas registradas</strong>
+        <span th:text="${hayFiltros} ? 'Ajusta los filtros o limpia la busqueda para ver mas resultados.' : 'Registra tu primera deuda para hacer seguimiento del saldo pendiente.'">
+            Registra tu primera deuda.
+        </span>
+        <div class="empty-actions">
+            <a class="soft-action primary-action" th:href="@{/deudas/nueva}" th:if="${!hayFiltros}">
+                <i class="bi bi-plus-lg"></i>
+                <span>Registrar primera deuda</span>
+            </a>
+            <a class="soft-action" th:href="@{/deudas}" th:if="${hayFiltros}">
+                <i class="bi bi-x-lg"></i>
+                <span>Limpiar filtros</span>
+            </a>
+        </div>
+    </section>
+
+    <div class="modal fade" id="debtStatusModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5" data-debt-status-title>Cambiar estado</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <p data-debt-status-message>Confirma el cambio de estado de la deuda.</p>
+                    <strong data-debt-label></strong>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="soft-action" data-bs-dismiss="modal">Cancelar</button>
+                    <form method="post" data-debt-status-form>
+                        <button type="submit" class="soft-action primary-action" data-debt-status-button>
+                            <i class="bi bi-check2"></i>
+                            <span>Confirmar</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</html>

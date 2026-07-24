@@ -1,0 +1,67 @@
+.top-navbar {
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: var(--navbar-height);
+    padding: 0 28px;
+    border-bottom: 1px solid var(--color-border);
+    background: rgba(248, 250, 252, 0.92);
+    backdrop-filter: blur(14px);
+}
+
+.navbar-brand-area {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.navbar-app-name {
+    font-weight: 800;
+}
+
+.navbar-date {
+    color: var(--color-muted);
+    font-size: 0.84rem;
+}
+
+.navbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-chip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 40px;
+    padding: 0 12px 0 4px;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    background: var(--color-card);
+}
+
+.user-avatar {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--color-primary);
+    color: #fff;
+    font-size: 0.78rem;
+    font-weight: 800;
+}
+
+.user-name {
+    color: var(--color-text);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.mobile-menu-btn {
+    display: none;
+}

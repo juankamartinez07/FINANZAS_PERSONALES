@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layout :: layout(${tituloModulo}, ~{::section})}">
+<section class="module-placeholder">
+    <div class="placeholder-card">
+        <div class="placeholder-icon"><i class="bi bi-gear"></i></div>
+        <p class="eyebrow">Modulo</p>
+        <h1 th:text="${tituloModulo}">Configuracion</h1>
+        <p>En construccion</p>
+    </div>
+</section>
+</html>

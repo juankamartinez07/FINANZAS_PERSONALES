@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layout :: layout('Detalle de ahorro', ~{::section})}">
+<section class="savings-page">
+    <div class="page-heading">
+        <div>
+            <p class="eyebrow">Detalle de meta</p>
+            <h1 th:text="${ahorro.nombre}">Meta</h1>
+            <p class="page-description">Consulta el objetivo, el avance y el valor faltante de esta meta.</p>
+        </div>
+        <div class="heading-actions">
+            <a class="soft-action" th:href="@{/ahorros}">
+                <i class="bi bi-arrow-left"></i>
+                <span>Volver</span>
+            </a>
+            <a class="soft-action primary-action" th:href="@{/ahorros/editar/{id}(id=${ahorro.idAhorro})}">
+                <i class="bi bi-pencil"></i>
+                <span>Editar</span>
+            </a>
+        </div>
+    </div>
+
+    <section class="saving-detail-hero" th:classappend="${' state-' + #strings.toLowerCase(#strings.replace(ahorro.estadoVisual, ' ', '-'))}">
+        <div>
+            <span class="saving-state-pill" th:classappend="${' state-' + #strings.toLowerCase(#strings.replace(ahorro.estadoVisual, ' ', '-'))}">
+                <i th:class="${ahorro.estadoVisual == 'INACTIVA' ? 'bi bi-pause-circle' : (ahorro.estadoVisual == 'COMPLETADA' ? 'bi bi-check-circle' : (ahorro.estadoVisual == 'EN PROGRESO' ? 'bi bi-graph-up-arrow' : 'bi bi-circle'))}"></i>
+                <span th:text="${ahorro.estadoVisual}">SIN INICIAR</span>
+            </span>
+            <h2 th:text="${ahorro.descripcion ?: 'Meta de ahorro'}">Meta de ahorro</h2>
+        </div>
+        <strong th:text="${'$ ' + #numbers.formatDecimal(ahorro.valorAhorrado, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+    </section>
+
+    <section class="saving-detail-grid">
+        <article>
+            <span>Valor objetivo</span>
+            <strong th:text="${'$ ' + #numbers.formatDecimal(ahorro.valorObjetivo, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+        </article>
+        <article>
+            <span>Valor ahorrado</span>
+            <strong th:text="${'$ ' + #numbers.formatDecimal(ahorro.valorAhorrado, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+        </article>
+        <article>
+            <span>Valor faltante</span>
+            <strong th:text="${'$ ' + #numbers.formatDecimal(ahorro.valorFaltante, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+        </article>
+        <article>
+            <span>Porcentaje de avance</span>
+            <strong th:text="${#numbers.formatDecimal(ahorro.porcentajeAvance, 1, 'POINT', 0, 'COMMA') + ' %'}">0 %</strong>
+        </article>
+        <article>
+            <span>Fecha de inicio</span>
+            <strong>Sin fecha</strong>
+        </article>
+        <article>
+            <span>Fecha objetivo</span>
+            <strong>Sin fecha</strong>
+        </article>
+        <article>
+            <span>Dias</span>
+            <strong>Sin fecha objetivo</strong>
+        </article>
+        <article>
+            <span>Estado</span>
+            <strong th:text="${ahorro.estadoVisual}">SIN INICIAR</strong>
+        </article>
+    </section>
+
+    <section class="saving-detail-panel">
+        <div class="panel-header">
+            <div>
+                <h2>Progreso de la meta</h2>
+                <p>Calculado desde el valor objetivo y el valor ahorrado.</p>
+            </div>
+        </div>
+        <div class="saving-progress large" th:style="${'--progress:' + ahorro.porcentajeAvance + '%'}">
+            <span></span>
+        </div>
+        <p>El registro individual de aportes estara disponible en una proxima version.</p>
+    </section>
+
+    <div class="saving-detail-actions">
+        <a class="soft-action" th:href="@{/ahorros}">
+            <i class="bi bi-arrow-left"></i>
+            <span>Volver</span>
+        </a>
+        <a class="soft-action primary-action" th:href="@{/ahorros/editar/{id}(id=${ahorro.idAhorro})}">
+            <i class="bi bi-pencil"></i>
+            <span>Editar</span>
+        </a>
+        <form method="post" th:action="@{/ahorros/{id}/estado(id=${ahorro.idAhorro})}" data-saving-inline-status>
+            <button class="soft-action" type="submit" th:classappend="${ahorro.activo} ? ' danger-action' : ''"
+                    th:data-saving-active="${ahorro.activo}">
+                <i th:class="${ahorro.activo} ? 'bi bi-pause-circle' : 'bi bi-check-circle'"></i>
+                <span th:text="${ahorro.activo} ? 'Desactivar' : 'Activar'">Estado</span>
+            </button>
+        </form>
+    </div>
+</section>
+</html>

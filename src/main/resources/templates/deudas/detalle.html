@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layout :: layout('Detalle de deuda', ~{::section})}">
+<section class="debts-page">
+    <div class="page-heading">
+        <div>
+            <p class="eyebrow">Detalle de deuda</p>
+            <h1 th:text="${deuda.nombre}">Deuda</h1>
+            <p class="page-description">Seguimiento del saldo pendiente y progreso de pago de esta obligacion.</p>
+        </div>
+        <div class="heading-actions">
+            <a class="soft-action" th:href="@{/deudas}">
+                <i class="bi bi-arrow-left"></i>
+                <span>Volver</span>
+            </a>
+            <a class="soft-action primary-action" th:href="@{/deudas/editar/{id}(id=${deuda.idDeuda})}">
+                <i class="bi bi-pencil"></i>
+                <span>Editar</span>
+            </a>
+        </div>
+    </div>
+
+    <section class="debt-detail-hero" th:classappend="${' state-' + #strings.toLowerCase(#strings.replace(deuda.estadoVisual, ' ', '-'))}">
+        <div>
+            <span class="debt-state-pill" th:classappend="${' state-' + #strings.toLowerCase(#strings.replace(deuda.estadoVisual, ' ', '-'))}">
+                <i th:class="${deuda.estadoVisual == 'INACTIVA' ? 'bi bi-pause-circle' : (deuda.estadoVisual == 'PAGADA' ? 'bi bi-check-circle' : (deuda.estadoVisual == 'VENCIDA' ? 'bi bi-exclamation-triangle' : (deuda.estadoVisual == 'PROXIMA A VENCER' ? 'bi bi-clock' : 'bi bi-circle')))}"></i>
+                <span th:text="${deuda.estadoVisual}">ACTIVA</span>
+            </span>
+            <h2 th:text="${deuda.entidad}">Entidad</h2>
+            <span th:text="${deuda.nombreCuenta}">Cuenta</span>
+        </div>
+        <strong th:text="${'$ ' + #numbers.formatDecimal(deuda.saldoActual, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+    </section>
+
+    <section class="debt-detail-grid">
+        <article>
+            <span>Saldo inicial</span>
+            <strong th:text="${'$ ' + #numbers.formatDecimal(deuda.saldoInicial, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+        </article>
+        <article>
+            <span>Saldo pendiente</span>
+            <strong th:text="${'$ ' + #numbers.formatDecimal(deuda.saldoActual, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+        </article>
+        <article>
+            <span>Valor pagado</span>
+            <strong th:text="${'$ ' + #numbers.formatDecimal(deuda.valorPagado, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+        </article>
+        <article>
+            <span>Cuota minima</span>
+            <strong th:text="${'$ ' + #numbers.formatDecimal(deuda.cuotaMinima, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+        </article>
+        <article>
+            <span>Fecha de inicio</span>
+            <strong th:text="${#temporals.format(deuda.fechaInicio, 'dd/MM/yyyy')}">23/07/2026</strong>
+        </article>
+        <article>
+            <span>Fecha de vencimiento</span>
+            <strong th:text="${deuda.fechaVencimiento != null ? #temporals.format(deuda.fechaVencimiento, 'dd/MM/yyyy') : 'Sin fecha'}">Sin fecha</strong>
+        </article>
+        <article>
+            <span>Dias</span>
+            <strong th:text="${deuda.diasParaVencimiento == null ? 'Sin vencimiento' : (deuda.diasParaVencimiento < 0 ? (-deuda.diasParaVencimiento) + ' dias vencida' : deuda.diasParaVencimiento + ' dias restantes')}">
+                Sin vencimiento
+            </strong>
+        </article>
+        <article>
+            <span>Porcentaje pagado</span>
+            <strong th:text="${#numbers.formatDecimal(deuda.porcentajePagado, 1, 'POINT', 0, 'COMMA') + ' %'}">0 %</strong>
+        </article>
+    </section>
+
+    <section class="debt-detail-panel">
+        <div class="panel-header">
+            <div>
+                <h2>Progreso de pago</h2>
+                <p>Calculado desde el saldo inicial y el saldo actual.</p>
+            </div>
+        </div>
+        <div class="debt-progress large" th:style="${'--progress:' + deuda.porcentajePagado + '%'}">
+            <span></span>
+        </div>
+        <p>El registro individual de pagos estara disponible en una proxima version.</p>
+    </section>
+
+    <div class="debt-detail-actions">
+        <a class="soft-action" th:href="@{/deudas}">
+            <i class="bi bi-arrow-left"></i>
+            <span>Volver</span>
+        </a>
+        <a class="soft-action primary-action" th:href="@{/deudas/editar/{id}(id=${deuda.idDeuda})}">
+            <i class="bi bi-pencil"></i>
+            <span>Editar</span>
+        </a>
+        <form method="post" th:action="@{/deudas/{id}/estado(id=${deuda.idDeuda})}" data-debt-inline-status>
+            <button class="soft-action" type="submit" th:classappend="${deuda.activo} ? ' danger-action' : ''"
+                    th:data-debt-active="${deuda.activo}">
+                <i th:class="${deuda.activo} ? 'bi bi-pause-circle' : 'bi bi-check-circle'"></i>
+                <span th:text="${deuda.activo} ? 'Desactivar' : 'Activar'">Estado</span>
+            </button>
+        </form>
+    </div>
+</section>
+</html>

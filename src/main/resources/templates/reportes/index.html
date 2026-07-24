@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layout :: layout('Reportes', ~{::section})}">
+<section class="reports-page">
+    <div class="page-heading">
+        <div>
+            <p class="eyebrow">Analitica financiera</p>
+            <h1>Reportes</h1>
+            <p class="page-description" th:text="${reporte.descripcionPeriodo + ' del ' + #temporals.format(reporte.desde, 'dd/MM/yyyy') + ' al ' + #temporals.format(reporte.hasta, 'dd/MM/yyyy')}">
+                Periodo seleccionado
+            </p>
+        </div>
+        <a class="soft-action" th:href="@{/transacciones/nueva}">
+            <i class="bi bi-plus-lg"></i>
+            <span>Nueva transaccion</span>
+        </a>
+    </div>
+
+    <div class="alert alert-danger" role="alert" th:if="${mensajeError}" th:text="${mensajeError}"></div>
+    <div class="alert alert-info" role="alert" th:if="${reporte.resumen.cantidadTransacciones == 0}">
+        No hay transacciones para el periodo seleccionado. Las secciones de situacion financiera permanecen disponibles.
+    </div>
+
+    <section class="reports-filter-panel">
+        <form th:action="@{/reportes}" method="get" class="reports-filters">
+            <div class="filter-field">
+                <label for="periodo">Periodo</label>
+                <select id="periodo" name="periodo" data-period-select>
+                    <option value="mesActual" th:selected="${reporte.periodo == 'mesActual'}">Mes actual</option>
+                    <option value="mesAnterior" th:selected="${reporte.periodo == 'mesAnterior'}">Mes anterior</option>
+                    <option value="ultimos3Meses" th:selected="${reporte.periodo == 'ultimos3Meses'}">Ultimos 3 meses</option>
+                    <option value="ultimos6Meses" th:selected="${reporte.periodo == 'ultimos6Meses'}">Ultimos 6 meses</option>
+                    <option value="anioActual" th:selected="${reporte.periodo == 'anioActual'}">Anio actual</option>
+                    <option value="ultimos12Meses" th:selected="${reporte.periodo == 'ultimos12Meses'}">Ultimos 12 meses</option>
+                    <option value="personalizado" th:selected="${reporte.periodo == 'personalizado'}">Rango personalizado</option>
+                </select>
+            </div>
+            <div class="filter-field">
+                <label for="desde">Desde</label>
+                <input id="desde" name="desde" type="date" th:value="${reporte.periodo == 'personalizado' ? reporte.desde : null}">
+            </div>
+            <div class="filter-field">
+                <label for="hasta">Hasta</label>
+                <input id="hasta" name="hasta" type="date" th:value="${reporte.periodo == 'personalizado' ? reporte.hasta : null}">
+            </div>
+            <div class="filter-field">
+                <label for="cuenta">Cuenta</label>
+                <select id="cuenta" name="cuenta">
+                    <option value="">Todas</option>
+                    <option th:each="cuentaItem : ${cuentas}" th:value="${cuentaItem.idCuenta}" th:text="${cuentaItem.nombre}"
+                            th:selected="${reporte.cuentaSeleccionada != null and reporte.cuentaSeleccionada == cuentaItem.idCuenta}">Cuenta</option>
+                </select>
+            </div>
+            <div class="filter-field">
+                <label for="concepto">Concepto</label>
+                <select id="concepto" name="concepto">
+                    <option value="">Todos</option>
+                    <option th:each="conceptoItem : ${conceptos}" th:value="${conceptoItem.idConcepto}" th:text="${conceptoItem.nombre}"
+                            th:selected="${reporte.conceptoSeleccionado != null and reporte.conceptoSeleccionado == conceptoItem.idConcepto}">Concepto</option>
+                </select>
+            </div>
+            <div class="filter-field">
+                <label for="tipo">Tipo</label>
+                <select id="tipo" name="tipo">
+                    <option value="">Todos</option>
+                    <option th:each="tipoItem : ${tipos}" th:value="${tipoItem}" th:text="${tipoItem.name() == 'INGRESO' ? 'Ingreso' : 'Gasto'}"
+                            th:selected="${reporte.tipoSeleccionado != null and reporte.tipoSeleccionado == tipoItem}">Tipo</option>
+                </select>
+            </div>
+            <div class="filter-actions">
+                <button class="soft-action primary-action" type="submit">
+                    <i class="bi bi-funnel"></i>
+                    <span>Aplicar</span>
+                </button>
+                <a class="soft-action" th:href="@{/reportes}">
+                    <i class="bi bi-x-lg"></i>
+                    <span>Limpiar</span>
+                </a>
+            </div>
+        </form>
+    </section>
+
+    <div class="reports-summary-grid">
+        <article><span>Ingresos</span><strong class="text-positive" th:text="${'$ ' + #numbers.formatDecimal(reporte.resumen.totalIngresos, 1, 'POINT', 0, 'COMMA')}">$ 0</strong></article>
+        <article><span>Gastos</span><strong class="text-negative" th:text="${'$ ' + #numbers.formatDecimal(reporte.resumen.totalGastos, 1, 'POINT', 0, 'COMMA')}">$ 0</strong></article>
+        <article><span>Balance</span><strong th:text="${'$ ' + #numbers.formatDecimal(reporte.resumen.balance, 1, 'POINT', 0, 'COMMA')}">$ 0</strong></article>
+        <article><span>Promedio ingresos</span><strong th:text="${'$ ' + #numbers.formatDecimal(reporte.resumen.promedioIngresos, 1, 'POINT', 0, 'COMMA')}">$ 0</strong></article>
+        <article><span>Promedio gastos</span><strong th:text="${'$ ' + #numbers.formatDecimal(reporte.resumen.promedioGastos, 1, 'POINT', 0, 'COMMA')}">$ 0</strong></article>
+        <article><span>Movimientos</span><strong th:text="${reporte.resumen.cantidadTransacciones}">0</strong></article>
+        <article><span>Mayor ingreso</span><strong th:text="${'$ ' + #numbers.formatDecimal(reporte.resumen.mayorIngreso, 1, 'POINT', 0, 'COMMA')}">$ 0</strong></article>
+        <article><span>Mayor gasto</span><strong th:text="${'$ ' + #numbers.formatDecimal(reporte.resumen.mayorGasto, 1, 'POINT', 0, 'COMMA')}">$ 0</strong></article>
+    </div>
+
+    <section class="reports-panel">
+        <div class="panel-header">
+            <div>
+                <h2>Comparacion mensual</h2>
+                <p>Mes actual frente al mes anterior con los filtros seleccionados.</p>
+            </div>
+        </div>
+        <div class="comparison-cards">
+            <article>
+                <span>Ingresos</span>
+                <strong th:text="${'$ ' + #numbers.formatDecimal(reporte.comparacion.diferenciaIngresos, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+                <small th:text="${reporte.comparacion.porcentajeIngresos == null ? 'Sin base de comparacion' : #numbers.formatDecimal(reporte.comparacion.porcentajeIngresos, 1, 'POINT', 2, 'COMMA') + ' %'}">0 %</small>
+            </article>
+            <article>
+                <span>Gastos</span>
+                <strong th:text="${'$ ' + #numbers.formatDecimal(reporte.comparacion.diferenciaGastos, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+                <small th:text="${reporte.comparacion.porcentajeGastos == null ? 'Sin base de comparacion' : #numbers.formatDecimal(reporte.comparacion.porcentajeGastos, 1, 'POINT', 2, 'COMMA') + ' %'}">0 %</small>
+            </article>
+            <article>
+                <span>Balance</span>
+                <strong th:text="${'$ ' + #numbers.formatDecimal(reporte.comparacion.diferenciaBalance, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+                <small th:text="${reporte.comparacion.porcentajeBalance == null ? 'Sin base de comparacion' : #numbers.formatDecimal(reporte.comparacion.porcentajeBalance, 1, 'POINT', 2, 'COMMA') + ' %'}">0 %</small>
+            </article>
+        </div>
+    </section>
+
+    <div class="report-chart-grid">
+        <section class="reports-panel chart-card">
+            <div class="panel-header"><div><h2>Evolucion mensual</h2><p>Ingresos, gastos y balance por mes.</p></div></div>
+            <canvas id="monthlyChart" height="120" th:if="${!#lists.isEmpty(reporte.evolucionMensual)}"></canvas>
+            <div class="chart-fallback">Los datos de evolucion estan disponibles en las tablas inferiores.</div>
+        </section>
+        <section class="reports-panel chart-card">
+            <div class="panel-header"><div><h2>Gastos por concepto</h2><p>Distribucion real de transacciones de gasto.</p></div></div>
+            <canvas id="expenseChart" height="140" th:if="${!#lists.isEmpty(reporte.gastosPorConcepto)}"></canvas>
+            <div class="empty-state" th:if="${#lists.isEmpty(reporte.gastosPorConcepto)}"><i class="bi bi-pie-chart"></i><strong>Sin gastos</strong><span>No hay gastos para el periodo.</span></div>
+        </section>
+        <section class="reports-panel chart-card">
+            <div class="panel-header"><div><h2>Ingresos por concepto</h2><p>Distribucion real de transacciones de ingreso.</p></div></div>
+            <canvas id="incomeChart" height="140" th:if="${!#lists.isEmpty(reporte.ingresosPorConcepto)}"></canvas>
+            <div class="empty-state" th:if="${#lists.isEmpty(reporte.ingresosPorConcepto)}"><i class="bi bi-pie-chart"></i><strong>Sin ingresos</strong><span>No hay ingresos para el periodo.</span></div>
+        </section>
+    </div>
+
+    <div class="report-sections-grid">
+        <section class="reports-panel">
+            <div class="panel-header"><div><h2>Analisis por cuenta</h2><p>Cuentas con movimientos en el periodo.</p></div></div>
+            <div class="report-table-wrap" th:if="${!#lists.isEmpty(reporte.cuentas)}">
+                <table class="report-table">
+                    <thead><tr><th>Cuenta</th><th>Ingresos</th><th>Gastos</th><th>Balance</th><th>Mov.</th><th></th></tr></thead>
+                    <tbody>
+                    <tr th:each="cuenta : ${reporte.cuentas}">
+                        <td th:text="${cuenta.nombreCuenta}">Cuenta</td>
+                        <td th:text="${'$ ' + #numbers.formatDecimal(cuenta.totalIngresos, 1, 'POINT', 0, 'COMMA')}">$ 0</td>
+                        <td th:text="${'$ ' + #numbers.formatDecimal(cuenta.totalGastos, 1, 'POINT', 0, 'COMMA')}">$ 0</td>
+                        <td th:text="${'$ ' + #numbers.formatDecimal(cuenta.balance, 1, 'POINT', 0, 'COMMA')}">$ 0</td>
+                        <td th:text="${cuenta.cantidadTransacciones}">0</td>
+                        <td><a class="soft-action" th:href="@{/transacciones(cuenta=${cuenta.idCuenta},desde=${reporte.desde},hasta=${reporte.hasta})}">Ver movimientos</a></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="empty-state" th:if="${#lists.isEmpty(reporte.cuentas)}"><i class="bi bi-credit-card"></i><strong>Sin movimientos por cuenta</strong><span>No hay datos para el periodo.</span></div>
+        </section>
+
+        <section class="reports-panel">
+            <div class="panel-header"><div><h2>Analisis por concepto</h2><p>Conceptos usados por transacciones.</p></div></div>
+            <div class="report-table-wrap" th:if="${!#lists.isEmpty(reporte.conceptos)}">
+                <table class="report-table">
+                    <thead><tr><th>Concepto</th><th>Tipo</th><th>Total</th><th>Promedio</th><th>Mov.</th><th></th></tr></thead>
+                    <tbody>
+                    <tr th:each="concepto : ${reporte.conceptos}">
+                        <td th:text="${concepto.nombreConcepto}">Concepto</td>
+                        <td th:text="${concepto.tipo.name() == 'INGRESO' ? 'Ingreso' : 'Gasto'}">Tipo</td>
+                        <td th:text="${'$ ' + #numbers.formatDecimal(concepto.total, 1, 'POINT', 0, 'COMMA')}">$ 0</td>
+                        <td th:text="${'$ ' + #numbers.formatDecimal(concepto.promedioPorTransaccion, 1, 'POINT', 0, 'COMMA')}">$ 0</td>
+                        <td th:text="${concepto.cantidadMovimientos}">0</td>
+                        <td><a class="soft-action" th:href="@{/transacciones(concepto=${concepto.idConcepto},desde=${reporte.desde},hasta=${reporte.hasta})}">Ver movimientos</a></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="empty-state" th:if="${#lists.isEmpty(reporte.conceptos)}"><i class="bi bi-tags"></i><strong>Sin conceptos</strong><span>No hay datos para el periodo.</span></div>
+        </section>
+    </div>
+
+    <div class="report-sections-grid">
+        <section class="reports-panel">
+            <div class="panel-header"><div><h2>Top ingresos</h2><p>Los 5 ingresos mas altos.</p></div></div>
+            <div class="movement-list" th:if="${!#lists.isEmpty(reporte.mayoresIngresos)}">
+                <article th:each="movimiento : ${reporte.mayoresIngresos}">
+                    <div><strong th:text="${movimiento.concepto.nombre}">Concepto</strong><span th:text="${movimiento.cuenta.nombre + ' - ' + #temporals.format(movimiento.fecha, 'dd/MM/yyyy')}">Cuenta</span></div>
+                    <b class="text-positive" th:text="${'$ ' + #numbers.formatDecimal(movimiento.valor, 1, 'POINT', 0, 'COMMA')}">$ 0</b>
+                </article>
+            </div>
+            <div class="empty-state" th:if="${#lists.isEmpty(reporte.mayoresIngresos)}"><i class="bi bi-arrow-down-left"></i><strong>Sin ingresos</strong><span>No hay ingresos destacados.</span></div>
+        </section>
+        <section class="reports-panel">
+            <div class="panel-header"><div><h2>Top gastos</h2><p>Los 5 gastos mas altos.</p></div></div>
+            <div class="movement-list" th:if="${!#lists.isEmpty(reporte.mayoresGastos)}">
+                <article th:each="movimiento : ${reporte.mayoresGastos}">
+                    <div><strong th:text="${movimiento.concepto.nombre}">Concepto</strong><span th:text="${movimiento.cuenta.nombre + ' - ' + #temporals.format(movimiento.fecha, 'dd/MM/yyyy')}">Cuenta</span></div>
+                    <b class="text-negative" th:text="${'$ ' + #numbers.formatDecimal(movimiento.valor, 1, 'POINT', 0, 'COMMA')}">$ 0</b>
+                </article>
+            </div>
+            <div class="empty-state" th:if="${#lists.isEmpty(reporte.mayoresGastos)}"><i class="bi bi-arrow-up-right"></i><strong>Sin gastos</strong><span>No hay gastos destacados.</span></div>
+        </section>
+    </div>
+
+    <div class="planning-grid">
+        <article class="reports-panel">
+            <h2>Deudas</h2>
+            <strong th:text="${'$ ' + #numbers.formatDecimal(reporte.resumenDeudas.totalSaldoPendienteActivo, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+            <span th:text="${reporte.resumenDeudas.cantidadDeudasActivas + ' deudas activas'}">0 deudas activas</span>
+        </article>
+        <article class="reports-panel">
+            <h2>Ahorros</h2>
+            <strong th:text="${'$ ' + #numbers.formatDecimal(reporte.resumenAhorros.totalAhorradoActivo, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+            <span th:text="${#numbers.formatDecimal(reporte.resumenAhorros.porcentajeGeneralCumplimiento, 1, 'POINT', 0, 'COMMA') + ' % de cumplimiento'}">0 %</span>
+        </article>
+        <article class="reports-panel">
+            <h2>Gastos fijos</h2>
+            <strong th:text="${'$ ' + #numbers.formatDecimal(reporte.resumenGastosFijos.totalMensualComprometido, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+            <span>Compromisos planificados, no transacciones pagadas.</span>
+        </article>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script th:inline="javascript">
+        window.reportChartData = {
+            monthlyLabels: [[${reporte.evolucionMensual.![periodo]}]],
+            monthlyIncome: [[${reporte.evolucionMensual.![ingresos]}]],
+            monthlyExpense: [[${reporte.evolucionMensual.![gastos]}]],
+            monthlyBalance: [[${reporte.evolucionMensual.![balance]}]],
+            expenseLabels: [[${reporte.gastosPorConcepto.![nombre]}]],
+            expenseValues: [[${reporte.gastosPorConcepto.![total]}]],
+            incomeLabels: [[${reporte.ingresosPorConcepto.![nombre]}]],
+            incomeValues: [[${reporte.ingresosPorConcepto.![total]}]]
+        };
+    </script>
+    <script th:src="@{/js/reportes.js}"></script>
+</section>
+</html>

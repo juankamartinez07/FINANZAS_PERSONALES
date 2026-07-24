@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layout :: layout('Detalle de cuenta', ~{::section})}">
+<section class="accounts-page">
+    <div class="page-heading">
+        <div>
+            <p class="eyebrow">Detalle de cuenta</p>
+            <h1 th:text="${detalle.cuenta.nombre}">Cuenta</h1>
+            <p class="page-description">Consulta saldo, ingresos, gastos y ultimos movimientos asociados a esta cuenta.</p>
+        </div>
+        <div class="heading-actions">
+            <a class="soft-action" th:href="@{/cuentas}">
+                <i class="bi bi-arrow-left"></i>
+                <span>Volver</span>
+            </a>
+            <a class="soft-action primary-action" th:href="@{/cuentas/editar/{id}(id=${detalle.cuenta.idCuenta})}">
+                <i class="bi bi-pencil"></i>
+                <span>Editar</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="account-detail-hero" th:classappend="${!detalle.cuenta.activo} ? ' inactive'">
+        <div>
+            <span class="status-pill" th:classappend="${detalle.cuenta.activo} ? ' active' : ' inactive'">
+                <i th:class="${detalle.cuenta.activo} ? 'bi bi-check-circle' : 'bi bi-pause-circle'"></i>
+                <span th:text="${detalle.cuenta.activo} ? 'Activa' : 'Inactiva'">Activa</span>
+            </span>
+            <h2 th:text="${detalle.cuenta.nombre}">Cuenta</h2>
+            <span th:text="${detalle.cuenta.cantidadTransacciones == 0 ? 'Sin movimientos' : detalle.cuenta.cantidadTransacciones + ' movimientos'}">
+                0 movimientos
+            </span>
+        </div>
+        <strong th:classappend="${detalle.cuenta.saldoCalculado.signum() < 0 ? ' negative' : (detalle.cuenta.saldoCalculado.signum() > 0 ? ' positive' : '')}"
+                th:text="${'$ ' + #numbers.formatDecimal(detalle.cuenta.saldoCalculado, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+    </div>
+
+    <div class="accounts-summary-grid">
+        <article class="account-summary-card">
+            <span>Total ingresos</span>
+            <strong class="positive" th:text="${'$ ' + #numbers.formatDecimal(detalle.totalIngresos, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+        </article>
+        <article class="account-summary-card">
+            <span>Total gastos</span>
+            <strong class="negative" th:text="${'$ ' + #numbers.formatDecimal(detalle.totalGastos, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+        </article>
+        <article class="account-summary-card">
+            <span>Saldo</span>
+            <strong th:text="${'$ ' + #numbers.formatDecimal(detalle.cuenta.saldoCalculado, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+        </article>
+        <article class="account-summary-card">
+            <span>Movimientos</span>
+            <strong th:text="${detalle.cuenta.cantidadTransacciones}">0</strong>
+        </article>
+    </div>
+
+    <section class="account-transactions-panel">
+        <div class="panel-header">
+            <div>
+                <h2>Ultimas transacciones</h2>
+                <p>Movimientos recientes asociados a esta cuenta.</p>
+            </div>
+            <a class="soft-action" th:href="@{/cuentas/{id}/transacciones(id=${detalle.cuenta.idCuenta})}">
+                <i class="bi bi-arrow-left-right"></i>
+                <span>Ver movimientos</span>
+            </a>
+        </div>
+        <div class="transaction-list" th:if="${!#lists.isEmpty(detalle.ultimasTransacciones)}">
+            <article class="transaction-item" th:each="transaccion : ${detalle.ultimasTransacciones}">
+                <div class="transaction-icon"
+                     th:classappend="${transaccion.concepto.tipo.name() == 'INGRESO'} ? ' income' : ' expense'">
+                    <i th:class="${transaccion.concepto.tipo.name() == 'INGRESO'} ? 'bi bi-arrow-down-left' : 'bi bi-arrow-up-right'"></i>
+                </div>
+                <div>
+                    <strong th:text="${transaccion.concepto.nombre}">Concepto</strong>
+                    <span th:text="${#temporals.format(transaccion.fecha, 'dd/MM/yyyy')}">Fecha</span>
+                </div>
+                <b th:class="${transaccion.concepto.tipo.name() == 'INGRESO'} ? 'text-positive' : 'text-negative'"
+                   th:text="${(transaccion.concepto.tipo.name() == 'INGRESO' ? '+ $ ' : '- $ ') + #numbers.formatDecimal(transaccion.valor, 1, 'POINT', 0, 'COMMA')}">
+                    $ 0
+                </b>
+            </article>
+        </div>
+        <div class="empty-state" th:if="${#lists.isEmpty(detalle.ultimasTransacciones)}">
+            <i class="bi bi-arrow-left-right"></i>
+            <strong>Sin movimientos</strong>
+            <span>Esta cuenta todavia no tiene transacciones registradas.</span>
+        </div>
+    </section>
+</section>
+</html>

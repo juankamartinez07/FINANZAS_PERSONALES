@@ -1,0 +1,326 @@
+.debts-page {
+    display: grid;
+    gap: 22px;
+    max-width: 1440px;
+    margin: 0 auto;
+}
+
+.debts-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.debt-summary-card,
+.debts-filter-panel,
+.debt-card,
+.debt-form-card,
+.debt-detail-hero,
+.debt-detail-grid article,
+.debt-detail-panel {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    background: var(--color-card);
+    box-shadow: var(--shadow-soft);
+}
+
+.debt-summary-card {
+    display: grid;
+    gap: 8px;
+    padding: 18px;
+}
+
+.debt-summary-card span,
+.debt-main-value span,
+.debt-progress-block span,
+.debt-form-progress span,
+.debt-detail-grid span {
+    color: var(--color-muted);
+    font-weight: 700;
+}
+
+.debt-summary-card strong {
+    font-size: 1.25rem;
+}
+
+.debts-filter-panel,
+.debt-form-card,
+.debt-detail-panel {
+    padding: 20px;
+}
+
+.debts-filters {
+    display: grid;
+    grid-template-columns: 1fr 210px 240px auto;
+    gap: 14px;
+    align-items: end;
+}
+
+.debts-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.debt-card {
+    display: grid;
+    gap: 18px;
+    padding: 20px;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+}
+
+.debt-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(59, 130, 246, 0.35);
+    box-shadow: 0 16px 36px rgba(15, 23, 42, 0.08);
+}
+
+.debt-card.state-vencida {
+    border-color: rgba(239, 68, 68, 0.35);
+}
+
+.debt-card.state-inactiva {
+    opacity: 0.76;
+}
+
+.debt-card-top,
+.debt-progress-block > div,
+.debt-form-progress > div,
+.debt-detail-hero,
+.debt-detail-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+.debt-card h2,
+.debt-detail-hero h2 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 800;
+}
+
+.debt-entity {
+    color: var(--color-muted);
+    font-size: 0.86rem;
+    font-weight: 700;
+}
+
+.debt-state-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 30px;
+    padding: 0 10px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.debt-state-pill.state-activa {
+    background: var(--color-soft-blue);
+    color: var(--color-primary);
+}
+
+.debt-state-pill.state-pagada {
+    background: var(--color-soft-green);
+    color: var(--color-positive);
+}
+
+.debt-state-pill.state-proxima-a-vencer {
+    background: var(--color-soft-amber);
+    color: var(--color-warning);
+}
+
+.debt-state-pill.state-vencida {
+    background: var(--color-soft-red);
+    color: var(--color-negative);
+}
+
+.debt-state-pill.state-inactiva {
+    background: var(--color-soft-amber);
+    color: var(--color-muted);
+}
+
+.debt-main-value {
+    display: grid;
+    gap: 4px;
+}
+
+.debt-main-value strong,
+.debt-detail-hero > strong {
+    font-size: 1.7rem;
+    line-height: 1.2;
+}
+
+.debt-data-grid,
+.debt-detail-grid {
+    display: grid;
+    gap: 12px;
+}
+
+.debt-data-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin: 0;
+}
+
+.debt-data-grid div {
+    min-width: 0;
+}
+
+.debt-data-grid dt {
+    color: var(--color-muted);
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.debt-data-grid dd {
+    margin: 0;
+    font-weight: 800;
+    word-break: break-word;
+}
+
+.debt-progress-block,
+.debt-form-progress {
+    display: grid;
+    gap: 10px;
+}
+
+.debt-progress {
+    position: relative;
+    height: 10px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--color-border);
+}
+
+.debt-progress.large {
+    height: 14px;
+}
+
+.debt-progress span {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: var(--progress);
+    max-width: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--color-secondary), var(--color-positive));
+}
+
+.debt-warning {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    color: var(--color-negative);
+    font-weight: 800;
+}
+
+.debt-actions,
+.debt-detail-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.debt-form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.debt-form-progress {
+    margin-top: 18px;
+    padding: 16px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    background: var(--color-background);
+}
+
+.debt-detail-hero {
+    padding: 24px;
+}
+
+.debt-detail-hero div {
+    display: grid;
+    gap: 8px;
+}
+
+.debt-detail-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.debt-detail-grid article {
+    display: grid;
+    gap: 8px;
+    padding: 18px;
+}
+
+.debt-detail-grid strong {
+    font-size: 1rem;
+    word-break: break-word;
+}
+
+.debt-detail-panel {
+    display: grid;
+    gap: 16px;
+}
+
+.debt-detail-panel p {
+    margin: 0;
+    color: var(--color-muted);
+    font-weight: 600;
+}
+
+@media (max-width: 1199.98px) {
+    .debts-summary-grid,
+    .debt-detail-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .debts-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .debts-filters {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 767.98px) {
+    .debts-summary-grid,
+    .debts-grid,
+    .debts-filters,
+    .debt-form-grid,
+    .debt-detail-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .debt-card-top,
+    .debt-detail-hero,
+    .debt-detail-actions,
+    .debt-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .debt-state-pill {
+        justify-content: center;
+    }
+
+    .debt-actions .soft-action,
+    .debt-detail-actions .soft-action,
+    .debt-detail-actions form,
+    .debts-filters .soft-action {
+        width: 100%;
+    }
+
+    .debt-detail-actions button {
+        width: 100%;
+    }
+
+    .debt-main-value strong,
+    .debt-detail-hero > strong {
+        font-size: 1.45rem;
+    }
+}

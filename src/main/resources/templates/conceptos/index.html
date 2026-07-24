@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layout :: layout('Conceptos', ~{::section})}">
+<section class="concepts-page">
+    <div class="page-heading">
+        <div>
+            <p class="eyebrow">Categorias financieras</p>
+            <h1>Conceptos</h1>
+            <p class="page-description">Administra categorias de ingreso y gasto sin alterar el historial financiero.</p>
+        </div>
+        <a class="soft-action primary-action" th:href="@{/conceptos/nuevo}">
+            <i class="bi bi-plus-lg"></i>
+            <span>Nuevo concepto</span>
+        </a>
+    </div>
+
+    <div class="alert alert-success" role="alert" th:if="${mensajeExito}" th:text="${mensajeExito}"></div>
+    <div class="alert alert-danger" role="alert" th:if="${mensajeError}" th:text="${mensajeError}"></div>
+
+    <div class="concepts-summary-grid">
+        <article class="concept-summary-card">
+            <span>Total conceptos</span>
+            <strong th:text="${resumen.cantidadTotal}">0</strong>
+        </article>
+        <article class="concept-summary-card">
+            <span>Activos</span>
+            <strong th:text="${resumen.cantidadActivos}">0</strong>
+        </article>
+        <article class="concept-summary-card">
+            <span>Ingresos</span>
+            <strong class="text-positive" th:text="${resumen.cantidadIngresos}">0</strong>
+        </article>
+        <article class="concept-summary-card">
+            <span>Gastos</span>
+            <strong class="text-negative" th:text="${resumen.cantidadGastos}">0</strong>
+        </article>
+        <article class="concept-summary-card">
+            <span>Inactivos</span>
+            <strong th:text="${resumen.cantidadInactivos}">0</strong>
+        </article>
+    </div>
+
+    <section class="concepts-filter-panel">
+        <form th:action="@{/conceptos}" method="get" class="concepts-filters">
+            <div class="filter-field">
+                <label for="buscar">Buscar por nombre</label>
+                <div class="input-with-icon">
+                    <i class="bi bi-search"></i>
+                    <input id="buscar" name="buscar" type="search" th:value="${buscar}" placeholder="Nombre del concepto">
+                </div>
+            </div>
+            <div class="filter-field">
+                <label for="tipo">Tipo</label>
+                <select id="tipo" name="tipo">
+                    <option value="">Todos</option>
+                    <option th:each="tipoItem : ${tipos}"
+                            th:value="${tipoItem}"
+                            th:text="${tipoItem.name() == 'INGRESO' ? 'Ingresos' : 'Gastos'}"
+                            th:selected="${tipoSeleccionado != null and tipoSeleccionado == tipoItem}">
+                        Tipo
+                    </option>
+                </select>
+            </div>
+            <div class="filter-field">
+                <label for="activo">Estado</label>
+                <select id="activo" name="activo">
+                    <option value="">Todos</option>
+                    <option value="true" th:selected="${activoSeleccionado != null and activoSeleccionado == true}">Activos</option>
+                    <option value="false" th:selected="${activoSeleccionado != null and activoSeleccionado == false}">Inactivos</option>
+                </select>
+            </div>
+            <div class="filter-actions">
+                <button class="soft-action primary-action" type="submit">
+                    <i class="bi bi-funnel"></i>
+                    <span>Filtrar</span>
+                </button>
+                <a class="soft-action" th:href="@{/conceptos}" th:if="${hayFiltros}">
+                    <i class="bi bi-x-lg"></i>
+                    <span>Limpiar</span>
+                </a>
+            </div>
+        </form>
+    </section>
+
+    <section class="concepts-grid" th:if="${!#lists.isEmpty(conceptos)}">
+        <article class="concept-card" th:each="concepto : ${conceptos}" th:classappend="${!concepto.activo ? ' inactive' : ''}">
+            <div class="concept-card-top">
+                <div class="concept-type-icon" th:classappend="${concepto.tipo.name() == 'INGRESO'} ? ' income' : ' expense'">
+                    <i th:class="${concepto.tipo.name() == 'INGRESO'} ? 'bi bi-arrow-down-left' : 'bi bi-arrow-up-right'"></i>
+                </div>
+                <span class="concept-status-pill" th:classappend="${concepto.activo} ? ' active' : ' inactive'">
+                    <i th:class="${concepto.activo} ? 'bi bi-check-circle' : 'bi bi-pause-circle'"></i>
+                    <span th:text="${concepto.activo} ? 'Activo' : 'Inactivo'">Activo</span>
+                </span>
+            </div>
+
+            <div class="concept-main">
+                <span class="concept-kind" th:classappend="${concepto.tipo.name() == 'INGRESO'} ? ' income' : ' expense'">
+                    <span th:text="${concepto.tipo.name() == 'INGRESO'} ? 'Ingreso' : 'Gasto'">Tipo</span>
+                </span>
+                <h2 th:text="${concepto.nombre}">Concepto</h2>
+            </div>
+
+            <dl class="concept-data-grid">
+                <div>
+                    <dt>Transacciones</dt>
+                    <dd th:text="${concepto.cantidadTransacciones}">0</dd>
+                </div>
+                <div>
+                    <dt>Gastos fijos</dt>
+                    <dd th:text="${concepto.cantidadGastosFijos}">0</dd>
+                </div>
+                <div>
+                    <dt>Cambio de tipo</dt>
+                    <dd th:text="${concepto.puedeCambiarTipo} ? 'Permitido' : 'Bloqueado'">Permitido</dd>
+                </div>
+            </dl>
+
+            <div class="concept-actions">
+                <a class="soft-action" th:href="@{/conceptos/{id}(id=${concepto.idConcepto})}">
+                    <i class="bi bi-eye"></i>
+                    <span>Detalle</span>
+                </a>
+                <a class="soft-action" th:href="@{/conceptos/editar/{id}(id=${concepto.idConcepto})}">
+                    <i class="bi bi-pencil"></i>
+                    <span>Editar</span>
+                </a>
+                <button class="soft-action" type="button"
+                        th:classappend="${concepto.activo} ? ' danger-action' : ''"
+                        data-bs-toggle="modal"
+                        data-bs-target="#conceptStatusModal"
+                        th:data-status-url="@{/conceptos/{id}/estado(id=${concepto.idConcepto})}"
+                        th:data-concept-name="${concepto.nombre}"
+                        th:data-concept-active="${concepto.activo}">
+                    <i th:class="${concepto.activo} ? 'bi bi-pause-circle' : 'bi bi-check-circle'"></i>
+                    <span th:text="${concepto.activo} ? 'Desactivar' : 'Activar'">Estado</span>
+                </button>
+            </div>
+        </article>
+    </section>
+
+    <section class="empty-state" th:if="${#lists.isEmpty(conceptos)}">
+        <i class="bi bi-tags"></i>
+        <strong th:text="${hayFiltros} ? 'No se encontraron conceptos' : 'Todavia no tienes conceptos registrados'">
+            Todavia no tienes conceptos registrados
+        </strong>
+        <span th:text="${hayFiltros} ? 'Ajusta los filtros o limpia la busqueda para ver mas resultados.' : 'Crea conceptos para clasificar ingresos y gastos.'">
+            Crea tu primer concepto.
+        </span>
+        <div class="empty-actions">
+            <a class="soft-action primary-action" th:href="@{/conceptos/nuevo}" th:if="${!hayFiltros}">
+                <i class="bi bi-plus-lg"></i>
+                <span>Crear primer concepto</span>
+            </a>
+            <a class="soft-action" th:href="@{/conceptos}" th:if="${hayFiltros}">
+                <i class="bi bi-x-lg"></i>
+                <span>Limpiar filtros</span>
+            </a>
+        </div>
+    </section>
+
+    <div class="modal fade" id="conceptStatusModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5" data-concept-status-title>Cambiar estado</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <p data-concept-status-message>Confirma el cambio de estado del concepto.</p>
+                    <strong data-concept-label></strong>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="soft-action" data-bs-dismiss="modal">Cancelar</button>
+                    <form method="post" data-concept-status-form>
+                        <button type="submit" class="soft-action primary-action" data-concept-status-button>
+                            <i class="bi bi-check2"></i>
+                            <span>Confirmar</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</html>

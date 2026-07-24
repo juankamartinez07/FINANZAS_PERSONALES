@@ -1,0 +1,325 @@
+.savings-page {
+    display: grid;
+    gap: 22px;
+    max-width: 1440px;
+    margin: 0 auto;
+}
+
+.savings-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.saving-summary-card,
+.savings-filter-panel,
+.saving-card,
+.saving-form-card,
+.saving-detail-hero,
+.saving-detail-grid article,
+.saving-detail-panel {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    background: var(--color-card);
+    box-shadow: var(--shadow-soft);
+}
+
+.saving-summary-card {
+    display: grid;
+    gap: 8px;
+    padding: 18px;
+}
+
+.saving-summary-card span,
+.saving-main-value span,
+.saving-progress-block span,
+.saving-form-progress span,
+.saving-detail-grid span {
+    color: var(--color-muted);
+    font-weight: 700;
+}
+
+.saving-summary-card strong {
+    font-size: 1.15rem;
+}
+
+.savings-filter-panel,
+.saving-form-card,
+.saving-detail-panel {
+    padding: 20px;
+}
+
+.savings-filters {
+    display: grid;
+    grid-template-columns: 1fr 240px auto;
+    gap: 14px;
+    align-items: end;
+}
+
+.savings-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.saving-card {
+    display: grid;
+    gap: 18px;
+    padding: 20px;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast), opacity var(--transition-fast);
+}
+
+.saving-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(34, 197, 94, 0.35);
+    box-shadow: 0 16px 36px rgba(15, 23, 42, 0.08);
+}
+
+.saving-card.state-completada {
+    border-color: rgba(34, 197, 94, 0.35);
+}
+
+.saving-card.state-inactiva {
+    opacity: 0.76;
+}
+
+.saving-card-top,
+.saving-progress-block > div,
+.saving-form-progress > div,
+.saving-detail-hero,
+.saving-detail-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+.saving-card h2,
+.saving-detail-hero h2 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 800;
+}
+
+.saving-copy {
+    display: -webkit-box;
+    overflow: hidden;
+    color: var(--color-muted);
+    font-size: 0.86rem;
+    font-weight: 700;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.saving-state-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 30px;
+    padding: 0 10px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.saving-state-pill.state-en-progreso {
+    background: var(--color-soft-blue);
+    color: var(--color-primary);
+}
+
+.saving-state-pill.state-sin-iniciar {
+    background: var(--color-background);
+    color: var(--color-muted);
+}
+
+.saving-state-pill.state-completada {
+    background: var(--color-soft-green);
+    color: var(--color-positive);
+}
+
+.saving-state-pill.state-inactiva {
+    background: var(--color-soft-amber);
+    color: var(--color-muted);
+}
+
+.saving-main-value {
+    display: grid;
+    gap: 4px;
+}
+
+.saving-main-value strong,
+.saving-detail-hero > strong {
+    font-size: 1.7rem;
+    line-height: 1.2;
+}
+
+.saving-data-grid,
+.saving-detail-grid {
+    display: grid;
+    gap: 12px;
+}
+
+.saving-data-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin: 0;
+}
+
+.saving-data-grid dt {
+    color: var(--color-muted);
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.saving-data-grid dd {
+    margin: 0;
+    font-weight: 800;
+    word-break: break-word;
+}
+
+.saving-progress-block,
+.saving-form-progress {
+    display: grid;
+    gap: 10px;
+}
+
+.saving-progress {
+    position: relative;
+    height: 10px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--color-border);
+}
+
+.saving-progress.large {
+    height: 14px;
+}
+
+.saving-progress span {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: var(--progress);
+    max-width: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--color-secondary), var(--color-positive));
+}
+
+.saving-note {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    color: var(--color-positive);
+    font-weight: 800;
+}
+
+.saving-actions,
+.saving-detail-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.saving-form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.saving-form-grid .full-field {
+    grid-column: 1 / -1;
+}
+
+.saving-form-progress {
+    margin-top: 18px;
+    padding: 16px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    background: var(--color-background);
+}
+
+.saving-detail-hero {
+    padding: 24px;
+}
+
+.saving-detail-hero div {
+    display: grid;
+    gap: 8px;
+}
+
+.saving-detail-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.saving-detail-grid article {
+    display: grid;
+    gap: 8px;
+    padding: 18px;
+}
+
+.saving-detail-grid strong {
+    font-size: 1rem;
+    word-break: break-word;
+}
+
+.saving-detail-panel {
+    display: grid;
+    gap: 16px;
+}
+
+.saving-detail-panel p {
+    margin: 0;
+    color: var(--color-muted);
+    font-weight: 600;
+}
+
+@media (max-width: 1199.98px) {
+    .savings-summary-grid,
+    .saving-detail-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .savings-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 767.98px) {
+    .savings-summary-grid,
+    .savings-grid,
+    .savings-filters,
+    .saving-form-grid,
+    .saving-detail-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .saving-form-grid .full-field {
+        grid-column: auto;
+    }
+
+    .saving-card-top,
+    .saving-detail-hero,
+    .saving-detail-actions,
+    .saving-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .saving-state-pill {
+        justify-content: center;
+    }
+
+    .saving-actions .soft-action,
+    .saving-detail-actions .soft-action,
+    .saving-detail-actions form,
+    .savings-filters .soft-action {
+        width: 100%;
+    }
+
+    .saving-detail-actions button {
+        width: 100%;
+    }
+
+    .saving-main-value strong,
+    .saving-detail-hero > strong {
+        font-size: 1.45rem;
+    }
+}

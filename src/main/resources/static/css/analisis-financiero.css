@@ -1,0 +1,293 @@
+.analysis-page {
+    display: grid;
+    gap: 22px;
+    max-width: 1440px;
+    margin: 0 auto;
+}
+
+.analysis-filter-panel,
+.analysis-hero,
+.analysis-panel,
+.analysis-indicator {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    background: var(--color-card);
+    box-shadow: var(--shadow-soft);
+}
+
+.analysis-filter-panel,
+.analysis-panel {
+    padding: 22px;
+}
+
+.analysis-filters {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 1fr auto;
+    gap: 16px;
+    align-items: end;
+}
+
+.analysis-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(320px, 0.8fr);
+    gap: 22px;
+    padding: 26px;
+    border-left: 6px solid var(--color-secondary);
+}
+
+.analysis-hero.level-saludable { border-left-color: var(--color-positive); }
+.analysis-hero.level-estable { border-left-color: var(--color-primary); }
+.analysis-hero.level-ajustado { border-left-color: var(--color-warning); }
+.analysis-hero.level-critico { border-left-color: var(--color-negative); }
+
+.analysis-hero-copy {
+    display: grid;
+    gap: 8px;
+}
+
+.analysis-hero-copy span,
+.analysis-hero-copy small,
+.analysis-hero-numbers span,
+.analysis-indicator span,
+.analysis-indicator small,
+.analysis-note,
+.comparison-list span,
+.comparison-list small,
+.category-analysis span,
+.category-analysis small,
+.planning-grid span,
+.planning-grid small {
+    color: var(--color-muted);
+}
+
+.analysis-hero-copy h2 {
+    margin: 0;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 800;
+    letter-spacing: 0;
+}
+
+.analysis-hero-copy p {
+    max-width: 760px;
+    margin: 0;
+    font-size: 1.05rem;
+}
+
+.analysis-hero-numbers {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.analysis-hero-numbers article,
+.comparison-list article,
+.planning-grid article {
+    display: grid;
+    gap: 8px;
+    padding: 16px;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    background: var(--color-background);
+}
+
+.analysis-hero-numbers strong,
+.comparison-list strong,
+.planning-grid strong {
+    font-size: 1.2rem;
+}
+
+.analysis-indicator-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.analysis-indicator {
+    display: grid;
+    gap: 10px;
+    min-height: 174px;
+    padding: 18px;
+}
+
+.analysis-indicator strong {
+    font-size: 1.35rem;
+    line-height: 1.15;
+}
+
+.indicator-icon {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 8px;
+    background: var(--color-soft-blue);
+    color: var(--color-primary);
+}
+
+.analysis-indicator.state-positivo .indicator-icon { background: var(--color-soft-green); color: var(--color-positive); }
+.analysis-indicator.state-negativo .indicator-icon,
+.analysis-indicator.state-alto .indicator-icon { background: var(--color-soft-red); color: var(--color-negative); }
+.analysis-indicator.state-medio .indicator-icon { background: var(--color-soft-amber); color: var(--color-warning); }
+
+.analysis-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+}
+
+.saving-suggestion {
+    display: grid;
+    gap: 10px;
+}
+
+.saving-suggestion strong {
+    font-size: 2rem;
+}
+
+.comparison-list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.analysis-list {
+    display: grid;
+    gap: 12px;
+}
+
+.analysis-list-item {
+    display: grid;
+    grid-template-columns: 42px 1fr;
+    gap: 12px;
+    align-items: start;
+    padding: 14px;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    color: var(--color-text);
+    background: var(--color-background);
+    transition: border-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.analysis-list-item:hover {
+    color: var(--color-text);
+    border-color: rgba(59, 130, 246, 0.35);
+    transform: translateY(-1px);
+}
+
+.analysis-list-item i {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 8px;
+    background: var(--color-soft-blue);
+    color: var(--color-primary);
+}
+
+.analysis-list-item.level-critica i { background: var(--color-soft-red); color: var(--color-negative); }
+.analysis-list-item.level-advertencia i { background: var(--color-soft-amber); color: var(--color-warning); }
+
+.analysis-list-item div {
+    display: grid;
+    gap: 4px;
+}
+
+.analysis-list-item span,
+.analysis-list-item small {
+    color: var(--color-muted);
+}
+
+.category-analysis {
+    display: grid;
+    gap: 12px;
+}
+
+.category-analysis article {
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.category-analysis article > div {
+    display: grid;
+    gap: 4px;
+}
+
+.category-analysis article > div:last-child {
+    text-align: right;
+}
+
+.chart-card canvas + canvas {
+    margin-top: 18px;
+}
+
+.planning-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.negative-accounts {
+    display: grid;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.negative-accounts h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 800;
+}
+
+.negative-accounts a {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    color: var(--color-text);
+}
+
+.analysis-note {
+    margin: 0;
+    padding: 14px 18px;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    background: var(--color-background);
+}
+
+.empty-state.compact {
+    min-height: 130px;
+}
+
+@media (max-width: 1024px) {
+    .analysis-filters,
+    .analysis-hero,
+    .analysis-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .analysis-indicator-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 640px) {
+    .analysis-hero-numbers,
+    .analysis-indicator-grid,
+    .comparison-list,
+    .planning-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .category-analysis article {
+        display: grid;
+    }
+
+    .category-analysis article > div:last-child {
+        text-align: left;
+    }
+}

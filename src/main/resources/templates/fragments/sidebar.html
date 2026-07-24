@@ -1,0 +1,59 @@
+<aside class="app-sidebar" aria-label="Navegacion principal" xmlns:th="http://www.thymeleaf.org" th:fragment="sidebar">
+    <div class="sidebar-header">
+        <div class="brand-mark">
+            <i class="bi bi-wallet2"></i>
+        </div>
+        <div class="brand-copy">
+            <span class="brand-title">Finanzas</span>
+            <span class="brand-subtitle">Personales</span>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav">
+        <a class="sidebar-link" th:classappend="${activePage == 'dashboard'} ? ' active'" th:href="@{/dashboard}" data-route="/dashboard">
+            <i class="bi bi-grid-1x2"></i>
+            <span>Dashboard</span>
+        </a>
+        <a class="sidebar-link" th:classappend="${activePage == 'reportes'} ? ' active'" th:href="@{/reportes}" data-route="/reportes">
+            <i class="bi bi-bar-chart-line"></i>
+            <span>Reportes</span>
+        </a>
+        <a class="sidebar-link" th:classappend="${activePage == 'analisis-financiero'} ? ' active'" th:href="@{/analisis-financiero}" data-route="/analisis-financiero">
+            <i class="bi bi-activity"></i>
+            <span>Analisis financiero</span>
+        </a>
+        <a class="sidebar-link" th:classappend="${activePage == 'transacciones'} ? ' active'" th:href="@{/transacciones}" data-route="/transacciones">
+            <i class="bi bi-arrow-left-right"></i>
+            <span>Transacciones</span>
+        </a>
+        <a class="sidebar-link" th:classappend="${activePage == 'cuentas'} ? ' active'" th:href="@{/cuentas}" data-route="/cuentas">
+            <i class="bi bi-credit-card"></i>
+            <span>Cuentas</span>
+        </a>
+        <a class="sidebar-link" th:classappend="${activePage == 'deudas'} ? ' active'" th:href="@{/deudas}" data-route="/deudas">
+            <i class="bi bi-receipt"></i>
+            <span>Deudas</span>
+        </a>
+        <a class="sidebar-link" th:classappend="${activePage == 'ahorros'} ? ' active'" th:href="@{/ahorros}" data-route="/ahorros">
+            <i class="bi bi-piggy-bank"></i>
+            <span>Ahorros</span>
+        </a>
+        <a class="sidebar-link" th:classappend="${activePage == 'gastosfijos'} ? ' active'" th:href="@{/gastosfijos}" data-route="/gastosfijos">
+            <i class="bi bi-calendar2-check"></i>
+            <span>Gastos Fijos</span>
+        </a>
+        <a class="sidebar-link" th:classappend="${activePage == 'conceptos'} ? ' active'" th:href="@{/conceptos}" data-route="/conceptos">
+            <i class="bi bi-tags"></i>
+            <span>Conceptos</span>
+        </a>
+        <a class="sidebar-link" th:classappend="${activePage == 'configuracion'} ? ' active'" th:href="@{/configuracion}" data-route="/configuracion">
+            <i class="bi bi-gear"></i>
+            <span>Configuracion</span>
+        </a>
+    </nav>
+
+    <button class="sidebar-collapse-btn" type="button" data-sidebar-toggle aria-label="Contraer menu">
+        <i class="bi bi-layout-sidebar-inset"></i>
+        <span>Contraer</span>
+    </button>
+</aside>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layout :: layout(${tituloFormulario}, ~{::section})}">
+<section class="concepts-page">
+    <div class="page-heading">
+        <div>
+            <p class="eyebrow">Conceptos</p>
+            <h1 th:text="${tituloFormulario}">Concepto</h1>
+            <p class="page-description">Clasifica categorias como ingresos o gastos. El tipo puede afectar reportes historicos.</p>
+        </div>
+        <a class="soft-action" th:href="@{/conceptos}">
+            <i class="bi bi-arrow-left"></i>
+            <span>Volver al listado</span>
+        </a>
+    </div>
+
+    <div class="alert alert-danger" role="alert" th:if="${mensajeError}" th:text="${mensajeError}"></div>
+
+    <form class="concept-form-card" method="post" th:action="${formAction}" th:object="${concepto}" data-concept-form>
+        <div class="form-grid concept-form-grid">
+            <div class="form-field">
+                <label for="nombre">Nombre</label>
+                <input id="nombre" type="text" th:field="*{nombre}" required maxlength="120" placeholder="Ej. Mercado">
+            </div>
+            <div class="form-field" th:if="${puedeCambiarTipo}">
+                <label for="tipo">Tipo</label>
+                <select id="tipo" th:field="*{tipo}" required data-concept-type>
+                    <option value="">Selecciona un tipo</option>
+                    <option th:each="tipoItem : ${tipos}"
+                            th:value="${tipoItem}"
+                            th:text="${tipoItem.name() == 'INGRESO' ? 'Ingreso' : 'Gasto'}">
+                        Tipo
+                    </option>
+                </select>
+            </div>
+            <div class="form-field" th:if="${!puedeCambiarTipo}">
+                <label>Tipo</label>
+                <input type="hidden" name="tipo" th:value="${concepto.tipo}">
+                <div class="locked-type" data-locked-type>
+                    <i th:class="${concepto.tipo != null and concepto.tipo.name() == 'INGRESO'} ? 'bi bi-arrow-down-left' : 'bi bi-arrow-up-right'"></i>
+                    <span th:text="${concepto.tipo != null and concepto.tipo.name() == 'INGRESO'} ? 'Ingreso' : 'Gasto'">Tipo</span>
+                </div>
+                <small>No puedes cambiar el tipo porque este concepto ya tiene movimientos o gastos fijos asociados.</small>
+            </div>
+            <div class="form-field" th:if="${mostrarActivo}">
+                <label for="activo">Estado</label>
+                <select id="activo" th:field="*{activo}">
+                    <option th:value="true">Activo</option>
+                    <option th:value="false">Inactivo</option>
+                </select>
+            </div>
+        </div>
+        <div class="concept-type-preview" data-concept-type-preview>
+            <i class="bi bi-tags"></i>
+            <span>Selecciona el tipo del concepto.</span>
+        </div>
+        <div class="form-actions">
+            <a class="soft-action" th:href="@{/conceptos}">Cancelar</a>
+            <button class="soft-action primary-action" type="submit">
+                <i class="bi bi-check2"></i>
+                <span>Guardar concepto</span>
+            </button>
+        </div>
+    </form>
+</section>
+</html>

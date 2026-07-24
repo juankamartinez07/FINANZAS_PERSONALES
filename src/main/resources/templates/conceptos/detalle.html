@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layout :: layout('Detalle de concepto', ~{::section})}">
+<section class="concepts-page">
+    <div class="page-heading">
+        <div>
+            <p class="eyebrow">Detalle de concepto</p>
+            <h1 th:text="${concepto.nombre}">Concepto</h1>
+            <p class="page-description">Consulta uso, estado y transacciones recientes asociadas a esta categoria.</p>
+        </div>
+        <div class="heading-actions">
+            <a class="soft-action" th:href="@{/conceptos}">
+                <i class="bi bi-arrow-left"></i>
+                <span>Volver</span>
+            </a>
+            <a class="soft-action primary-action" th:href="@{/conceptos/editar/{id}(id=${concepto.idConcepto})}">
+                <i class="bi bi-pencil"></i>
+                <span>Editar</span>
+            </a>
+        </div>
+    </div>
+
+    <section class="concept-detail-hero" th:classappend="${concepto.tipo.name() == 'INGRESO'} ? ' income' : ' expense'">
+        <div>
+            <span class="concept-status-pill" th:classappend="${concepto.activo} ? ' active' : ' inactive'">
+                <i th:class="${concepto.activo} ? 'bi bi-check-circle' : 'bi bi-pause-circle'"></i>
+                <span th:text="${concepto.activo} ? 'Activo' : 'Inactivo'">Activo</span>
+            </span>
+            <h2 th:text="${concepto.tipo.name() == 'INGRESO'} ? 'Ingreso' : 'Gasto'">Tipo</h2>
+            <span th:text="${concepto.puedeCambiarTipo} ? 'Puede cambiar de tipo' : 'Tipo bloqueado por historial'">
+                Puede cambiar de tipo
+            </span>
+        </div>
+        <div class="concept-type-icon large" th:classappend="${concepto.tipo.name() == 'INGRESO'} ? ' income' : ' expense'">
+            <i th:class="${concepto.tipo.name() == 'INGRESO'} ? 'bi bi-arrow-down-left' : 'bi bi-arrow-up-right'"></i>
+        </div>
+    </section>
+
+    <section class="concept-detail-grid">
+        <article>
+            <span>Transacciones</span>
+            <strong th:text="${concepto.cantidadTransacciones}">0</strong>
+        </article>
+        <article>
+            <span>Gastos fijos</span>
+            <strong th:text="${concepto.cantidadGastosFijos}">0</strong>
+        </article>
+        <article>
+            <span>Cambio de tipo</span>
+            <strong th:text="${concepto.puedeCambiarTipo} ? 'Permitido' : 'Bloqueado'">Permitido</strong>
+        </article>
+        <article>
+            <span>Estado</span>
+            <strong th:text="${concepto.activo} ? 'Activo' : 'Inactivo'">Activo</strong>
+        </article>
+    </section>
+
+    <section class="concept-detail-panel">
+        <div class="panel-header">
+            <div>
+                <h2>Ultimas transacciones</h2>
+                <p>Movimientos recientes que usan este concepto.</p>
+            </div>
+            <a class="soft-action" th:href="@{/transacciones(concepto=${concepto.idConcepto})}">
+                <i class="bi bi-arrow-right"></i>
+                <span>Ver transacciones</span>
+            </a>
+        </div>
+        <div class="transaction-list" th:if="${!#lists.isEmpty(ultimasTransacciones)}">
+            <article class="transaction-item" th:each="transaccion : ${ultimasTransacciones}">
+                <div class="transaction-icon"
+                     th:classappend="${transaccion.concepto.tipo.name() == 'INGRESO'} ? ' income' : ' expense'">
+                    <i th:class="${transaccion.concepto.tipo.name() == 'INGRESO'} ? 'bi bi-arrow-down-left' : 'bi bi-arrow-up-right'"></i>
+                </div>
+                <div>
+                    <strong th:text="${transaccion.cuenta.nombre}">Cuenta</strong>
+                    <span th:text="${#temporals.format(transaccion.fecha, 'dd/MM/yyyy')}">Fecha</span>
+                </div>
+                <b th:class="${transaccion.concepto.tipo.name() == 'INGRESO'} ? 'text-positive' : 'text-negative'"
+                   th:text="${(transaccion.concepto.tipo.name() == 'INGRESO' ? '+ $ ' : '- $ ') + #numbers.formatDecimal(transaccion.valor, 1, 'POINT', 0, 'COMMA')}">
+                    $ 0
+                </b>
+            </article>
+        </div>
+        <div class="empty-state" th:if="${#lists.isEmpty(ultimasTransacciones)}">
+            <i class="bi bi-arrow-left-right"></i>
+            <strong>Sin transacciones</strong>
+            <span>Este concepto todavia no tiene movimientos asociados.</span>
+        </div>
+    </section>
+
+    <div class="concept-detail-actions">
+        <a class="soft-action" th:href="@{/conceptos}">
+            <i class="bi bi-arrow-left"></i>
+            <span>Volver</span>
+        </a>
+        <a class="soft-action" th:href="@{/transacciones(concepto=${concepto.idConcepto})}">
+            <i class="bi bi-arrow-left-right"></i>
+            <span>Ver transacciones</span>
+        </a>
+        <a class="soft-action" th:if="${concepto.tipo.name() == 'GASTO'}" th:href="@{/gastosfijos(concepto=${concepto.idConcepto})}">
+            <i class="bi bi-calendar2-check"></i>
+            <span>Ver gastos fijos</span>
+        </a>
+        <a class="soft-action primary-action" th:href="@{/conceptos/editar/{id}(id=${concepto.idConcepto})}">
+            <i class="bi bi-pencil"></i>
+            <span>Editar</span>
+        </a>
+        <form method="post" th:action="@{/conceptos/{id}/estado(id=${concepto.idConcepto})}" data-concept-inline-status>
+            <button class="soft-action" type="submit" th:classappend="${concepto.activo} ? ' danger-action' : ''"
+                    th:data-concept-active="${concepto.activo}">
+                <i th:class="${concepto.activo} ? 'bi bi-pause-circle' : 'bi bi-check-circle'"></i>
+                <span th:text="${concepto.activo} ? 'Desactivar' : 'Activar'">Estado</span>
+            </button>
+        </form>
+    </div>
+</section>
+</html>

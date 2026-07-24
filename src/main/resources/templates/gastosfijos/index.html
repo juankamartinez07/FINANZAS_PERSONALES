@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layout :: layout('Gastos Fijos', ~{::section})}">
+<section class="fixed-expenses-page">
+    <div class="page-heading">
+        <div>
+            <p class="eyebrow">Compromisos mensuales</p>
+            <h1>Gastos Fijos</h1>
+            <p class="page-description">Consulta plantillas recurrentes, proxima fecha estimada y valor mensual comprometido.</p>
+        </div>
+        <a class="soft-action primary-action" th:href="@{/gastosfijos/nuevo}">
+            <i class="bi bi-plus-lg"></i>
+            <span>Nuevo gasto fijo</span>
+        </a>
+    </div>
+
+    <div class="alert alert-success" role="alert" th:if="${mensajeExito}" th:text="${mensajeExito}"></div>
+    <div class="alert alert-danger" role="alert" th:if="${mensajeError}" th:text="${mensajeError}"></div>
+
+    <div class="fixed-summary-grid">
+        <article class="fixed-summary-card">
+            <span>Total mensual comprometido</span>
+            <strong th:text="${'$ ' + #numbers.formatDecimal(resumen.totalMensualComprometido, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+        </article>
+        <article class="fixed-summary-card">
+            <span>Gastos activos</span>
+            <strong th:text="${resumen.cantidadGastosActivos}">0</strong>
+        </article>
+        <article class="fixed-summary-card">
+            <span>Pagos proximos</span>
+            <strong th:text="${resumen.pagosProximos}">0</strong>
+        </article>
+        <article class="fixed-summary-card">
+            <span>Valor proximos 7 dias</span>
+            <strong th:text="${'$ ' + #numbers.formatDecimal(resumen.valorProximoPagar, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+        </article>
+        <article class="fixed-summary-card">
+            <span>Mayor valor</span>
+            <strong th:text="${resumen.gastoMayorValor}">Sin gastos activos</strong>
+        </article>
+    </div>
+
+    <section class="fixed-filter-panel">
+        <form th:action="@{/gastosfijos}" method="get" class="fixed-filters">
+            <div class="filter-field">
+                <label for="buscar">Buscar</label>
+                <div class="input-with-icon">
+                    <i class="bi bi-search"></i>
+                    <input id="buscar" name="buscar" type="search" th:value="${buscar}" placeholder="Nombre, cuenta o concepto">
+                </div>
+            </div>
+            <div class="filter-field">
+                <label for="estado">Estado</label>
+                <select id="estado" name="estado">
+                    <option value="">Todos</option>
+                    <option value="ACTIVO" th:selected="${estadoSeleccionado == 'ACTIVO'}">Activos</option>
+                    <option value="INACTIVO" th:selected="${estadoSeleccionado == 'INACTIVO'}">Inactivos</option>
+                    <option value="VENCE HOY" th:selected="${estadoSeleccionado == 'VENCE HOY'}">Vencen hoy</option>
+                    <option value="PROXIMOS" th:selected="${estadoSeleccionado == 'PROXIMOS'}">Proximos 7 dias</option>
+                </select>
+            </div>
+            <div class="filter-field">
+                <label for="cuenta">Cuenta</label>
+                <select id="cuenta" name="cuenta">
+                    <option value="">Todas</option>
+                    <option th:each="cuentaItem : ${cuentas}"
+                            th:value="${cuentaItem.idCuenta}"
+                            th:text="${cuentaItem.nombre}"
+                            th:selected="${cuentaSeleccionada != null and cuentaSeleccionada == cuentaItem.idCuenta}">
+                        Cuenta
+                    </option>
+                </select>
+            </div>
+            <div class="filter-field">
+                <label for="concepto">Concepto</label>
+                <select id="concepto" name="concepto">
+                    <option value="">Todos</option>
+                    <option th:each="conceptoItem : ${conceptos}"
+                            th:value="${conceptoItem.idConcepto}"
+                            th:text="${conceptoItem.nombre}"
+                            th:selected="${conceptoSeleccionado != null and conceptoSeleccionado == conceptoItem.idConcepto}">
+                        Concepto
+                    </option>
+                </select>
+            </div>
+            <div class="filter-actions">
+                <button class="soft-action primary-action" type="submit">
+                    <i class="bi bi-funnel"></i>
+                    <span>Filtrar</span>
+                </button>
+                <a class="soft-action" th:href="@{/gastosfijos}" th:if="${hayFiltros}">
+                    <i class="bi bi-x-lg"></i>
+                    <span>Limpiar</span>
+                </a>
+            </div>
+        </form>
+    </section>
+
+    <section class="fixed-grid" th:if="${!#lists.isEmpty(gastosFijos)}">
+        <article class="fixed-card" th:each="gastoFijo : ${gastosFijos}" th:classappend="${' state-' + #strings.toLowerCase(#strings.replace(gastoFijo.estadoVisual, ' ', '-'))}">
+            <div class="fixed-card-top">
+                <div>
+                    <span class="fixed-copy" th:text="${gastoFijo.nombreConcepto}">Concepto</span>
+                    <h2 th:text="${gastoFijo.nombre}">Gasto fijo</h2>
+                </div>
+                <span class="fixed-state-pill" th:classappend="${' state-' + #strings.toLowerCase(#strings.replace(gastoFijo.estadoVisual, ' ', '-'))}">
+                    <i th:class="${gastoFijo.estadoVisual == 'INACTIVO' ? 'bi bi-pause-circle' : (gastoFijo.estadoVisual == 'VENCE HOY' ? 'bi bi-exclamation-circle' : (gastoFijo.estadoVisual == 'PROXIMO' ? 'bi bi-clock' : 'bi bi-calendar-check'))}"></i>
+                    <span th:text="${gastoFijo.estadoVisual}">PENDIENTE</span>
+                </span>
+            </div>
+
+            <div class="fixed-main-value">
+                <span>Valor mensual</span>
+                <strong th:text="${'$ ' + #numbers.formatDecimal(gastoFijo.valor, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+            </div>
+
+            <dl class="fixed-data-grid">
+                <div>
+                    <dt>Cuenta</dt>
+                    <dd th:text="${gastoFijo.nombreCuenta}">Cuenta</dd>
+                </div>
+                <div>
+                    <dt>Dia de pago</dt>
+                    <dd th:text="${gastoFijo.diaPago}">1</dd>
+                </div>
+                <div>
+                    <dt>Proxima fecha</dt>
+                    <dd th:text="${#temporals.format(gastoFijo.proximaFechaPago, 'dd/MM/yyyy')}">15/08/2026</dd>
+                </div>
+                <div>
+                    <dt>Dias restantes</dt>
+                    <dd th:text="${gastoFijo.diasParaPago == 0 ? 'Hoy' : gastoFijo.diasParaPago + ' dias'}">0 dias</dd>
+                </div>
+            </dl>
+
+            <p class="fixed-note" th:if="${gastoFijo.estadoVisual == 'VENCE HOY' or gastoFijo.estadoVisual == 'PROXIMO'}">
+                <i class="bi bi-clock"></i>
+                Pago estimado dentro de los proximos 7 dias.
+            </p>
+
+            <div class="fixed-actions">
+                <a class="soft-action" th:href="@{/gastosfijos/{id}(id=${gastoFijo.idGastoFijo})}">
+                    <i class="bi bi-eye"></i>
+                    <span>Detalle</span>
+                </a>
+                <a class="soft-action" th:href="@{/gastosfijos/editar/{id}(id=${gastoFijo.idGastoFijo})}">
+                    <i class="bi bi-pencil"></i>
+                    <span>Editar</span>
+                </a>
+                <button class="soft-action" type="button"
+                        th:classappend="${gastoFijo.activo} ? ' danger-action' : ''"
+                        data-bs-toggle="modal"
+                        data-bs-target="#fixedStatusModal"
+                        th:data-status-url="@{/gastosfijos/{id}/estado(id=${gastoFijo.idGastoFijo})}"
+                        th:data-fixed-name="${gastoFijo.nombre}"
+                        th:data-fixed-active="${gastoFijo.activo}">
+                    <i th:class="${gastoFijo.activo} ? 'bi bi-pause-circle' : 'bi bi-check-circle'"></i>
+                    <span th:text="${gastoFijo.activo} ? 'Desactivar' : 'Activar'">Estado</span>
+                </button>
+            </div>
+        </article>
+    </section>
+
+    <section class="empty-state" th:if="${#lists.isEmpty(gastosFijos)}">
+        <i class="bi bi-calendar2-check"></i>
+        <strong th:text="${hayFiltros} ? 'No se encontraron gastos fijos' : 'Todavia no tienes gastos fijos registrados'">
+            Todavia no tienes gastos fijos registrados
+        </strong>
+        <span th:text="${hayFiltros} ? 'Ajusta los filtros o limpia la busqueda para ver mas resultados.' : 'Registra tu primer compromiso recurrente para planear mejor el mes.'">
+            Registra tu primer gasto fijo.
+        </span>
+        <div class="empty-actions">
+            <a class="soft-action primary-action" th:href="@{/gastosfijos/nuevo}" th:if="${!hayFiltros}">
+                <i class="bi bi-plus-lg"></i>
+                <span>Registrar primer gasto fijo</span>
+            </a>
+            <a class="soft-action" th:href="@{/gastosfijos}" th:if="${hayFiltros}">
+                <i class="bi bi-x-lg"></i>
+                <span>Limpiar filtros</span>
+            </a>
+        </div>
+    </section>
+
+    <div class="modal fade" id="fixedStatusModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5" data-fixed-status-title>Cambiar estado</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <p data-fixed-status-message>Confirma el cambio de estado del gasto fijo.</p>
+                    <strong data-fixed-label></strong>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="soft-action" data-bs-dismiss="modal">Cancelar</button>
+                    <form method="post" data-fixed-status-form>
+                        <button type="submit" class="soft-action primary-action" data-fixed-status-button>
+                            <i class="bi bi-check2"></i>
+                            <span>Confirmar</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</html>

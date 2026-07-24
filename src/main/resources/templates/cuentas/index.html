@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layout :: layout('Cuentas', ~{::section})}">
+<section class="accounts-page">
+    <div class="page-heading">
+        <div>
+            <p class="eyebrow">Cuentas</p>
+            <h1>Cuentas</h1>
+            <p class="page-description">Administra tus cuentas y consulta saldos calculados desde ingresos y gastos registrados.</p>
+        </div>
+        <a class="soft-action primary-action" th:href="@{/cuentas/nueva}">
+            <i class="bi bi-plus-lg"></i>
+            <span>Nueva cuenta</span>
+        </a>
+    </div>
+
+    <div class="alert alert-success" role="alert" th:if="${mensajeExito}" th:text="${mensajeExito}"></div>
+    <div class="alert alert-danger" role="alert" th:if="${mensajeError}" th:text="${mensajeError}"></div>
+
+    <div class="accounts-summary-grid">
+        <article class="account-summary-card">
+            <span>Saldo total</span>
+            <strong th:text="${'$ ' + #numbers.formatDecimal(resumen.saldoTotal, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+        </article>
+        <article class="account-summary-card">
+            <span>Cuentas activas</span>
+            <strong th:text="${resumen.cantidadActivas}">0</strong>
+        </article>
+        <article class="account-summary-card">
+            <span>Total cuentas</span>
+            <strong th:text="${resumen.cantidadTotal}">0</strong>
+        </article>
+        <article class="account-summary-card">
+            <span>Mayor saldo</span>
+            <strong th:text="${resumen.cuentaMayorSaldo ?: 'Sin cuentas'}">Sin cuentas</strong>
+        </article>
+    </div>
+
+    <section class="accounts-filter-panel">
+        <form th:action="@{/cuentas}" method="get" class="accounts-filters">
+            <div class="filter-field">
+                <label for="buscar">Buscar por nombre</label>
+                <div class="input-with-icon">
+                    <i class="bi bi-search"></i>
+                    <input id="buscar" name="buscar" type="search" th:value="${buscar}" placeholder="Nombre de la cuenta">
+                </div>
+            </div>
+            <div class="filter-field">
+                <label for="activo">Estado</label>
+                <select id="activo" name="activo">
+                    <option value="">Todas</option>
+                    <option value="true" th:selected="${activoSeleccionado != null and activoSeleccionado == true}">Activas</option>
+                    <option value="false" th:selected="${activoSeleccionado != null and activoSeleccionado == false}">Inactivas</option>
+                </select>
+            </div>
+            <div class="filter-actions">
+                <button class="soft-action primary-action" type="submit">
+                    <i class="bi bi-funnel"></i>
+                    <span>Filtrar</span>
+                </button>
+                <a class="soft-action" th:href="@{/cuentas}" th:if="${hayFiltros}">
+                    <i class="bi bi-x-lg"></i>
+                    <span>Limpiar</span>
+                </a>
+            </div>
+        </form>
+    </section>
+
+    <section class="accounts-grid" th:if="${!#lists.isEmpty(cuentas)}">
+        <article class="account-card" th:each="cuenta : ${cuentas}" th:classappend="${!cuenta.activo} ? ' inactive'">
+            <div class="account-card-header">
+                <div class="account-icon"><i class="bi bi-credit-card"></i></div>
+                <span class="status-pill" th:classappend="${cuenta.activo} ? ' active' : ' inactive'">
+                    <i th:class="${cuenta.activo} ? 'bi bi-check-circle' : 'bi bi-pause-circle'"></i>
+                    <span th:text="${cuenta.activo} ? 'Activa' : 'Inactiva'">Activa</span>
+                </span>
+            </div>
+            <div class="account-card-body">
+                <h2 th:text="${cuenta.nombre}">Cuenta</h2>
+                <span>Saldo calculado</span>
+                <strong th:classappend="${cuenta.saldoCalculado.signum() < 0 ? ' negative' : (cuenta.saldoCalculado.signum() > 0 ? ' positive' : '')}"
+                        th:text="${'$ ' + #numbers.formatDecimal(cuenta.saldoCalculado, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+                <small th:text="${cuenta.cantidadTransacciones == 0 ? 'Sin movimientos' : cuenta.cantidadTransacciones + ' movimientos'}">0 movimientos</small>
+            </div>
+            <div class="account-actions">
+                <a class="soft-action" th:href="@{/cuentas/{id}/transacciones(id=${cuenta.idCuenta})}">
+                    <i class="bi bi-arrow-left-right"></i>
+                    <span>Movimientos</span>
+                </a>
+                <a class="soft-action" th:href="@{/cuentas/{id}(id=${cuenta.idCuenta})}">
+                    <i class="bi bi-eye"></i>
+                    <span>Detalle</span>
+                </a>
+                <a class="soft-action" th:href="@{/cuentas/editar/{id}(id=${cuenta.idCuenta})}">
+                    <i class="bi bi-pencil"></i>
+                    <span>Editar</span>
+                </a>
+                <button class="soft-action" type="button"
+                        th:classappend="${cuenta.activo} ? ' danger-action' : ''"
+                        data-bs-toggle="modal"
+                        data-bs-target="#accountStatusModal"
+                        th:data-status-url="@{/cuentas/{id}/estado(id=${cuenta.idCuenta})}"
+                        th:data-account-name="${cuenta.nombre}"
+                        th:data-account-active="${cuenta.activo}">
+                    <i th:class="${cuenta.activo} ? 'bi bi-pause-circle' : 'bi bi-check-circle'"></i>
+                    <span th:text="${cuenta.activo} ? 'Desactivar' : 'Activar'">Estado</span>
+                </button>
+            </div>
+        </article>
+    </section>
+
+    <section class="empty-state" th:if="${#lists.isEmpty(cuentas)}">
+        <i class="bi bi-credit-card"></i>
+        <strong>Todavia no tienes cuentas registradas</strong>
+        <span th:text="${hayFiltros} ? 'No se encontraron cuentas con los filtros aplicados.' : 'Crea tu primera cuenta para empezar a registrar movimientos.'">
+            Crea tu primera cuenta.
+        </span>
+        <div class="empty-actions">
+            <a class="soft-action primary-action" th:href="@{/cuentas/nueva}">
+                <i class="bi bi-plus-lg"></i>
+                <span>Crear primera cuenta</span>
+            </a>
+            <a class="soft-action" th:href="@{/cuentas}" th:if="${hayFiltros}">
+                <i class="bi bi-x-lg"></i>
+                <span>Limpiar filtros</span>
+            </a>
+        </div>
+    </section>
+
+    <div class="modal fade" id="accountStatusModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5" data-status-title>Cambiar estado</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <p data-status-message>Confirma el cambio de estado de la cuenta.</p>
+                    <strong data-account-label></strong>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="soft-action" data-bs-dismiss="modal">Cancelar</button>
+                    <form method="post" data-status-form>
+                        <button type="submit" class="soft-action primary-action" data-status-button>
+                            <i class="bi bi-check2"></i>
+                            <span>Confirmar</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</html>

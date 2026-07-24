@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layout :: layout('Analisis financiero', ~{::section})}">
+<section class="analysis-page">
+    <div class="page-heading">
+        <div>
+            <p class="eyebrow">Interpretacion financiera</p>
+            <h1>Analisis financiero</h1>
+            <p class="page-description"
+               th:text="${analisis.descripcionPeriodo + ' del ' + #temporals.format(analisis.fechaDesde, 'dd/MM/yyyy') + ' al ' + #temporals.format(analisis.fechaHasta, 'dd/MM/yyyy')}">
+                Periodo seleccionado
+            </p>
+        </div>
+        <a class="soft-action primary-action" th:href="@{/reportes}">
+            <i class="bi bi-bar-chart-line"></i>
+            <span>Ver reportes</span>
+        </a>
+    </div>
+
+    <div class="alert alert-danger" role="alert" th:if="${mensajeError}" th:text="${mensajeError}"></div>
+
+    <section class="analysis-filter-panel">
+        <form class="analysis-filters" th:action="@{/analisis-financiero}" method="get">
+            <div class="filter-field">
+                <label for="periodo">Periodo</label>
+                <select id="periodo" name="periodo" data-analysis-period>
+                    <option value="mesActual" th:selected="${analisis.periodo == 'mesActual'}">Mes actual</option>
+                    <option value="mesAnterior" th:selected="${analisis.periodo == 'mesAnterior'}">Mes anterior</option>
+                    <option value="ultimos3Meses" th:selected="${analisis.periodo == 'ultimos3Meses'}">Ultimos 3 meses</option>
+                    <option value="ultimos6Meses" th:selected="${analisis.periodo == 'ultimos6Meses'}">Ultimos 6 meses</option>
+                    <option value="anioActual" th:selected="${analisis.periodo == 'anioActual'}">Anio actual</option>
+                    <option value="personalizado" th:selected="${analisis.periodo == 'personalizado'}">Rango personalizado</option>
+                </select>
+            </div>
+            <div class="filter-field">
+                <label for="desde">Desde</label>
+                <input id="desde" name="desde" type="date" th:value="${analisis.periodo == 'personalizado' ? analisis.fechaDesde : null}">
+            </div>
+            <div class="filter-field">
+                <label for="hasta">Hasta</label>
+                <input id="hasta" name="hasta" type="date" th:value="${analisis.periodo == 'personalizado' ? analisis.fechaHasta : null}">
+            </div>
+            <div class="filter-actions">
+                <button class="soft-action primary-action" type="submit">
+                    <i class="bi bi-funnel"></i>
+                    <span>Analizar</span>
+                </button>
+                <a class="soft-action" th:href="@{/analisis-financiero}">
+                    <i class="bi bi-x-lg"></i>
+                    <span>Limpiar</span>
+                </a>
+            </div>
+        </form>
+    </section>
+
+    <section class="analysis-hero" th:classappend="${' level-' + #strings.toLowerCase(#strings.replace(analisis.nivelFinancieroGeneral, ' ', '-'))}">
+        <div class="analysis-hero-copy">
+            <span>Estado financiero general</span>
+            <h2 th:text="${analisis.nivelFinancieroGeneral}">SIN DATOS</h2>
+            <p th:text="${analisis.mensajeNivel}">Registra ingresos y gastos para obtener un analisis completo.</p>
+            <small th:if="${analisis.mensajeSinIngresos}" th:text="${analisis.mensajeSinIngresos}"></small>
+        </div>
+        <div class="analysis-hero-numbers">
+            <article>
+                <span>Balance</span>
+                <strong th:text="${'$ ' + #numbers.formatDecimal(analisis.balance, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+            </article>
+            <article>
+                <span>Gastado</span>
+                <strong th:text="${#numbers.formatDecimal(analisis.porcentajeGastado, 1, 'POINT', 2, 'COMMA') + ' %'}">0 %</strong>
+            </article>
+            <article>
+                <span>Disponible</span>
+                <strong th:text="${#numbers.formatDecimal(analisis.porcentajeAhorro, 1, 'POINT', 2, 'COMMA') + ' %'}">0 %</strong>
+            </article>
+        </div>
+    </section>
+
+    <section class="analysis-indicator-grid" aria-label="Indicadores financieros">
+        <article class="analysis-indicator" th:each="indicador : ${analisis.indicadores}"
+                 th:classappend="${' state-' + #strings.toLowerCase(indicador.estadoVisual)}">
+            <div class="indicator-icon"><i th:class="${'bi ' + indicador.icono}"></i></div>
+            <span th:text="${indicador.nombre}">Indicador</span>
+            <strong th:if="${!indicador.porcentaje}" th:text="${'$ ' + #numbers.formatDecimal(indicador.valor, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+            <strong th:if="${indicador.porcentaje}" th:text="${#numbers.formatDecimal(indicador.valor, 1, 'POINT', 2, 'COMMA') + ' %'}">0 %</strong>
+            <small th:text="${indicador.descripcion}">Descripcion</small>
+        </article>
+    </section>
+
+    <div class="analysis-grid">
+        <section class="analysis-panel">
+            <div class="panel-header">
+                <div>
+                    <h2>Sugerencia de ahorro</h2>
+                    <p>No se registra automaticamente ni modifica metas existentes.</p>
+                </div>
+                <i class="bi bi-piggy-bank"></i>
+            </div>
+            <div class="saving-suggestion">
+                <strong th:text="${'$ ' + #numbers.formatDecimal(analisis.sugerenciaAhorro.valorSugerido, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+                <span th:text="${#numbers.formatDecimal(analisis.sugerenciaAhorro.porcentajeSugerido, 1, 'POINT', 2, 'COMMA') + ' % sugerido'}">0 % sugerido</span>
+                <p th:text="${analisis.sugerenciaAhorro.explicacion}">Explicacion</p>
+                <a class="soft-action" th:href="@{/ahorros/nuevo(valorSugerido=${analisis.sugerenciaAhorro.valorSugerido})}">
+                    <i class="bi bi-plus-lg"></i>
+                    <span>Crear meta con este valor</span>
+                </a>
+            </div>
+        </section>
+
+        <section class="analysis-panel">
+            <div class="panel-header">
+                <div>
+                    <h2>Comparacion con periodo anterior</h2>
+                    <p th:text="${analisis.comparacionPeriodo.mensaje}">Sin datos suficientes para comparar.</p>
+                </div>
+                <i class="bi bi-arrow-left-right"></i>
+            </div>
+            <div class="comparison-list">
+                <article>
+                    <span>Ingresos</span>
+                    <strong th:text="${'$ ' + #numbers.formatDecimal(analisis.comparacionPeriodo.diferenciaIngresos, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+                    <small th:text="${analisis.comparacionPeriodo.porcentajeIngresos == null ? 'Sin base valida' : #numbers.formatDecimal(analisis.comparacionPeriodo.porcentajeIngresos, 1, 'POINT', 2, 'COMMA') + ' %'}">0 %</small>
+                </article>
+                <article>
+                    <span>Gastos</span>
+                    <strong th:text="${'$ ' + #numbers.formatDecimal(analisis.comparacionPeriodo.diferenciaGastos, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+                    <small th:text="${analisis.comparacionPeriodo.porcentajeGastos == null ? 'Sin base valida' : #numbers.formatDecimal(analisis.comparacionPeriodo.porcentajeGastos, 1, 'POINT', 2, 'COMMA') + ' %'}">0 %</small>
+                </article>
+                <article>
+                    <span>Balance</span>
+                    <strong th:text="${'$ ' + #numbers.formatDecimal(analisis.comparacionPeriodo.diferenciaBalance, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+                    <small th:text="${analisis.comparacionPeriodo.porcentajeBalance == null ? 'Sin base valida' : #numbers.formatDecimal(analisis.comparacionPeriodo.porcentajeBalance, 1, 'POINT', 2, 'COMMA') + ' %'}">0 %</small>
+                </article>
+            </div>
+        </section>
+    </div>
+
+    <div class="analysis-grid">
+        <section class="analysis-panel">
+            <div class="panel-header">
+                <div>
+                    <h2>Alertas</h2>
+                    <p th:text="${analisis.cantidadAlertas + ' alertas calculadas al cargar la pagina.'}">0 alertas</p>
+                </div>
+                <i class="bi bi-bell"></i>
+            </div>
+            <div class="analysis-list" th:if="${!#lists.isEmpty(analisis.alertas)}">
+                <a class="analysis-list-item" th:each="alerta : ${analisis.alertas}" th:href="${alerta.ruta}"
+                   th:classappend="${' level-' + #strings.toLowerCase(alerta.nivel)}">
+                    <i th:class="${'bi ' + alerta.icono}"></i>
+                    <div>
+                        <strong th:text="${alerta.titulo}">Alerta</strong>
+                        <span th:text="${alerta.descripcion}">Descripcion</span>
+                        <small th:text="${alerta.nivel}">Nivel</small>
+                    </div>
+                </a>
+            </div>
+            <div class="empty-state compact" th:if="${#lists.isEmpty(analisis.alertas)}">
+                <i class="bi bi-check-circle"></i>
+                <strong>Sin alertas urgentes</strong>
+                <span>No se detectaron condiciones prioritarias para el periodo.</span>
+            </div>
+        </section>
+
+        <section class="analysis-panel">
+            <div class="panel-header">
+                <div>
+                    <h2>Recomendaciones</h2>
+                    <p>Reglas orientativas generadas desde tus registros.</p>
+                </div>
+                <i class="bi bi-lightbulb"></i>
+            </div>
+            <div class="analysis-list" th:if="${!#lists.isEmpty(analisis.recomendaciones)}">
+                <a class="analysis-list-item recommendation-item" th:each="recomendacion, iter : ${analisis.recomendaciones}"
+                   th:href="${recomendacion.ruta}" th:hidden="${iter.index >= 8}">
+                    <i th:class="${'bi ' + recomendacion.icono}"></i>
+                    <div>
+                        <strong th:text="${recomendacion.titulo}">Recomendacion</strong>
+                        <span th:text="${recomendacion.descripcion}">Descripcion</span>
+                        <small th:text="${recomendacion.prioridad + ' - ' + recomendacion.tipo}">Prioridad</small>
+                    </div>
+                </a>
+            </div>
+            <button class="soft-action" type="button" data-show-recommendations
+                    th:if="${#lists.size(analisis.recomendaciones) > #lists.size(analisis.recomendacionesVisibles)}">
+                <i class="bi bi-chevron-down"></i>
+                <span>Mostrar todas</span>
+            </button>
+        </section>
+    </div>
+
+    <div class="analysis-grid">
+        <section class="analysis-panel">
+            <div class="panel-header">
+                <div>
+                    <h2>Principales categorias de gasto</h2>
+                    <p>Maximo 5 conceptos ordenados de mayor a menor.</p>
+                </div>
+                <a class="soft-action" th:href="@{/reportes(tipo='GASTO')}">
+                    <i class="bi bi-arrow-right"></i>
+                    <span>Ver reporte completo</span>
+                </a>
+            </div>
+            <div class="category-analysis" th:if="${!#lists.isEmpty(analisis.principalesCategoriasGasto)}">
+                <article th:each="categoria : ${analisis.principalesCategoriasGasto}">
+                    <div>
+                        <strong th:text="${categoria.nombreConcepto}">Categoria</strong>
+                        <span th:text="${categoria.cantidadTransacciones + ' movimientos'}">0 movimientos</span>
+                    </div>
+                    <div>
+                        <b th:text="${'$ ' + #numbers.formatDecimal(categoria.totalGastado, 1, 'POINT', 0, 'COMMA')}">$ 0</b>
+                        <small th:text="${#numbers.formatDecimal(categoria.porcentaje, 1, 'POINT', 2, 'COMMA') + ' %'}">0 %</small>
+                    </div>
+                </article>
+            </div>
+            <div class="empty-state compact" th:if="${#lists.isEmpty(analisis.principalesCategoriasGasto)}">
+                <i class="bi bi-pie-chart"></i>
+                <strong>Sin gastos por categoria</strong>
+                <span>Registra gastos para ver esta distribucion.</span>
+            </div>
+        </section>
+
+        <section class="analysis-panel chart-card">
+            <div class="panel-header">
+                <div>
+                    <h2>Graficos</h2>
+                    <p>Apoyo visual; los datos principales estan disponibles como texto.</p>
+                </div>
+                <i class="bi bi-activity"></i>
+            </div>
+            <canvas id="analysisGeneralChart" height="130" th:if="${analisis.totalIngresos.compareTo(T(java.math.BigDecimal).ZERO) > 0}"></canvas>
+            <canvas id="analysisCategoryChart" height="130" th:if="${!#lists.isEmpty(analisis.principalesCategoriasGasto)}"></canvas>
+            <div class="empty-state compact" th:if="${analisis.totalIngresos.compareTo(T(java.math.BigDecimal).ZERO) <= 0 and #lists.isEmpty(analisis.principalesCategoriasGasto)}">
+                <i class="bi bi-bar-chart"></i>
+                <strong>Sin datos para graficar</strong>
+                <span>Los graficos se habilitan con ingresos o gastos registrados.</span>
+            </div>
+        </section>
+    </div>
+
+    <section class="analysis-panel">
+        <div class="panel-header">
+            <div>
+                <h2>Situacion complementaria</h2>
+                <p>Deudas, compromisos fijos, ahorros y saldos negativos calculados sin modificar registros.</p>
+            </div>
+        </div>
+        <div class="planning-grid">
+            <article>
+                <span>Deuda pendiente</span>
+                <strong th:text="${'$ ' + #numbers.formatDecimal(analisis.totalDeudas, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+                <small th:text="${#numbers.formatDecimal(analisis.porcentajeCuotasSobreIngresos, 1, 'POINT', 2, 'COMMA') + ' % de ingresos en cuotas'}">0 %</small>
+            </article>
+            <article>
+                <span>Gastos fijos</span>
+                <strong th:text="${'$ ' + #numbers.formatDecimal(analisis.totalGastosFijos, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+                <small th:text="${#numbers.formatDecimal(analisis.porcentajeIngresosComprometidos, 1, 'POINT', 2, 'COMMA') + ' % de ingresos comprometidos'}">0 %</small>
+            </article>
+            <article>
+                <span>Total ahorrado</span>
+                <strong th:text="${'$ ' + #numbers.formatDecimal(analisis.totalAhorros, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+                <small>El ahorro registrado no se descuenta automaticamente de cuentas.</small>
+            </article>
+        </div>
+        <div class="negative-accounts" th:if="${!#lists.isEmpty(analisis.cuentasConSaldoNegativo)}">
+            <h3>Cuentas con saldo negativo</h3>
+            <a th:each="cuenta : ${analisis.cuentasConSaldoNegativo}" th:href="@{/cuentas/{id}(id=${cuenta.idCuenta})}">
+                <span th:text="${cuenta.nombreCuenta}">Cuenta</span>
+                <strong th:text="${'$ ' + #numbers.formatDecimal(cuenta.saldo, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+            </a>
+        </div>
+    </section>
+
+    <p class="analysis-note">
+        Las recomendaciones se generan automaticamente a partir de tus registros y tienen fines informativos.
+    </p>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script th:inline="javascript">
+        window.analysisChartData = {
+            gastos: [[${analisis.totalGastos}]],
+            margen: [[${analisis.capacidadAhorro}]],
+            categorias: [[${analisis.principalesCategoriasGasto.![nombreConcepto]}]],
+            valoresCategorias: [[${analisis.principalesCategoriasGasto.![totalGastado]}]]
+        };
+    </script>
+    <script th:src="@{/js/analisis-financiero.js}"></script>
+</section>
+</html>

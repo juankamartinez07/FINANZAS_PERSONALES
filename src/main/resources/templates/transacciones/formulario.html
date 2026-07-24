@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layout :: layout(${tituloFormulario}, ~{::section})}">
+<section class="transactions-page">
+    <div class="page-heading">
+        <div>
+            <p class="eyebrow">Movimientos</p>
+            <h1 th:text="${tituloFormulario}">Transaccion</h1>
+            <p class="page-description">Registra ingresos o gastos asociando una cuenta y un concepto activo.</p>
+        </div>
+        <a class="soft-action" th:href="@{/transacciones}">
+            <i class="bi bi-arrow-left"></i>
+            <span>Volver al listado</span>
+        </a>
+    </div>
+
+    <div class="alert alert-danger" role="alert" th:if="${mensajeError}" th:text="${mensajeError}"></div>
+
+    <form class="transaction-form-card" method="post" th:action="${formAction}" th:object="${transaccion}">
+        <div class="form-grid">
+            <div class="form-field">
+                <label for="fecha">Fecha</label>
+                <input id="fecha" type="date" th:field="*{fecha}" required>
+            </div>
+            <div class="form-field">
+                <label for="valor">Valor</label>
+                <input id="valor" type="number" th:field="*{valor}" min="0.01" step="0.01" required placeholder="0">
+            </div>
+            <div class="form-field">
+                <label for="cuenta">Cuenta</label>
+                <select id="cuenta" name="cuenta.idCuenta" required>
+                    <option value="">Selecciona una cuenta</option>
+                    <option th:each="cuentaItem : ${cuentas}"
+                            th:value="${cuentaItem.idCuenta}"
+                            th:text="${cuentaItem.nombre}"
+                            th:selected="${transaccion.cuenta != null and transaccion.cuenta.idCuenta == cuentaItem.idCuenta}">
+                        Cuenta
+                    </option>
+                </select>
+            </div>
+            <div class="form-field">
+                <label for="concepto">Concepto</label>
+                <select id="concepto" name="concepto.idConcepto" required data-concept-select>
+                    <option value="">Selecciona un concepto</option>
+                    <option th:each="conceptoItem : ${conceptos}"
+                            th:value="${conceptoItem.idConcepto}"
+                            th:text="${conceptoItem.nombre}"
+                            th:data-tipo="${conceptoItem.tipo}"
+                            th:selected="${transaccion.concepto != null and transaccion.concepto.idConcepto == conceptoItem.idConcepto}">
+                        Concepto
+                    </option>
+                </select>
+                <span class="concept-type-hint" data-concept-type>Selecciona un concepto para ver su tipo</span>
+            </div>
+            <div class="form-field full">
+                <label for="observacion">Observacion</label>
+                <textarea id="observacion" th:field="*{observacion}" rows="4" maxlength="255" placeholder="Detalle opcional del movimiento"></textarea>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a class="soft-action" th:href="@{/transacciones}">Cancelar</a>
+            <button class="soft-action primary-action" type="submit">
+                <i class="bi bi-check2"></i>
+                <span>Guardar transaccion</span>
+            </button>
+        </div>
+    </form>
+</section>
+</html>

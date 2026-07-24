@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layout :: layout('Ahorros', ~{::section})}">
+<section class="savings-page">
+    <div class="page-heading">
+        <div>
+            <p class="eyebrow">Metas financieras</p>
+            <h1>Ahorros</h1>
+            <p class="page-description">Consulta tus metas, el valor ahorrado y cuanto falta para alcanzar cada objetivo.</p>
+        </div>
+        <a class="soft-action primary-action" th:href="@{/ahorros/nuevo}">
+            <i class="bi bi-plus-lg"></i>
+            <span>Nueva meta</span>
+        </a>
+    </div>
+
+    <div class="alert alert-success" role="alert" th:if="${mensajeExito}" th:text="${mensajeExito}"></div>
+    <div class="alert alert-info" role="alert" th:if="${mensajeInfo}" th:text="${mensajeInfo}"></div>
+    <div class="alert alert-danger" role="alert" th:if="${mensajeError}" th:text="${mensajeError}"></div>
+
+    <div class="savings-summary-grid">
+        <article class="saving-summary-card">
+            <span>Total ahorrado activo</span>
+            <strong th:text="${'$ ' + #numbers.formatDecimal(resumen.totalAhorradoActivo, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+        </article>
+        <article class="saving-summary-card">
+            <span>Objetivos activos</span>
+            <strong th:text="${'$ ' + #numbers.formatDecimal(resumen.totalObjetivosActivos, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+        </article>
+        <article class="saving-summary-card">
+            <span>Valor faltante</span>
+            <strong th:text="${'$ ' + #numbers.formatDecimal(resumen.valorTotalFaltante, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+        </article>
+        <article class="saving-summary-card">
+            <span>Metas activas</span>
+            <strong th:text="${resumen.cantidadMetasActivas}">0</strong>
+        </article>
+        <article class="saving-summary-card">
+            <span>Completadas</span>
+            <strong th:text="${resumen.cantidadMetasCompletadas}">0</strong>
+        </article>
+        <article class="saving-summary-card">
+            <span>Cumplimiento general</span>
+            <strong th:text="${#numbers.formatDecimal(resumen.porcentajeGeneralCumplimiento, 1, 'POINT', 0, 'COMMA') + ' %'}">0 %</strong>
+        </article>
+    </div>
+
+    <section class="savings-filter-panel">
+        <form th:action="@{/ahorros}" method="get" class="savings-filters">
+            <div class="filter-field">
+                <label for="buscar">Buscar por nombre</label>
+                <div class="input-with-icon">
+                    <i class="bi bi-search"></i>
+                    <input id="buscar" name="buscar" type="search" th:value="${buscar}" placeholder="Nombre de la meta">
+                </div>
+            </div>
+            <div class="filter-field">
+                <label for="estado">Estado</label>
+                <select id="estado" name="estado">
+                    <option value="">Todas</option>
+                    <option value="ACTIVA" th:selected="${estadoSeleccionado == 'ACTIVA'}">Activas</option>
+                    <option value="EN PROGRESO" th:selected="${estadoSeleccionado == 'EN PROGRESO'}">En progreso</option>
+                    <option value="SIN INICIAR" th:selected="${estadoSeleccionado == 'SIN INICIAR'}">Sin iniciar</option>
+                    <option value="PROXIMA A VENCER" th:selected="${estadoSeleccionado == 'PROXIMA A VENCER'}">Proximas a vencer</option>
+                    <option value="VENCIDA" th:selected="${estadoSeleccionado == 'VENCIDA'}">Vencidas</option>
+                    <option value="COMPLETADA" th:selected="${estadoSeleccionado == 'COMPLETADA'}">Completadas</option>
+                    <option value="INACTIVA" th:selected="${estadoSeleccionado == 'INACTIVA'}">Inactivas</option>
+                </select>
+            </div>
+            <div class="filter-actions">
+                <button class="soft-action primary-action" type="submit">
+                    <i class="bi bi-funnel"></i>
+                    <span>Filtrar</span>
+                </button>
+                <a class="soft-action" th:href="@{/ahorros}" th:if="${hayFiltros}">
+                    <i class="bi bi-x-lg"></i>
+                    <span>Limpiar</span>
+                </a>
+            </div>
+        </form>
+    </section>
+
+    <section class="savings-grid" th:if="${!#lists.isEmpty(ahorros)}">
+        <article class="saving-card" th:each="ahorro : ${ahorros}" th:classappend="${' state-' + #strings.toLowerCase(#strings.replace(ahorro.estadoVisual, ' ', '-'))}">
+            <div class="saving-card-top">
+                <div>
+                    <span class="saving-copy" th:text="${ahorro.descripcion ?: 'Meta de ahorro'}">Meta de ahorro</span>
+                    <h2 th:text="${ahorro.nombre}">Meta</h2>
+                </div>
+                <span class="saving-state-pill" th:classappend="${' state-' + #strings.toLowerCase(#strings.replace(ahorro.estadoVisual, ' ', '-'))}">
+                    <i th:class="${ahorro.estadoVisual == 'INACTIVA' ? 'bi bi-pause-circle' : (ahorro.estadoVisual == 'COMPLETADA' ? 'bi bi-check-circle' : (ahorro.estadoVisual == 'EN PROGRESO' ? 'bi bi-graph-up-arrow' : 'bi bi-circle'))}"></i>
+                    <span th:text="${ahorro.estadoVisual}">SIN INICIAR</span>
+                </span>
+            </div>
+
+            <div class="saving-main-value">
+                <span>Valor ahorrado</span>
+                <strong th:text="${'$ ' + #numbers.formatDecimal(ahorro.valorAhorrado, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+            </div>
+
+            <dl class="saving-data-grid">
+                <div>
+                    <dt>Objetivo</dt>
+                    <dd th:text="${'$ ' + #numbers.formatDecimal(ahorro.valorObjetivo, 1, 'POINT', 0, 'COMMA')}">$ 0</dd>
+                </div>
+                <div>
+                    <dt>Faltante</dt>
+                    <dd th:text="${'$ ' + #numbers.formatDecimal(ahorro.valorFaltante, 1, 'POINT', 0, 'COMMA')}">$ 0</dd>
+                </div>
+                <div>
+                    <dt>Fecha objetivo</dt>
+                    <dd>Sin fecha</dd>
+                </div>
+                <div>
+                    <dt>Dias restantes</dt>
+                    <dd>Sin fecha</dd>
+                </div>
+            </dl>
+
+            <div class="saving-progress-block">
+                <div>
+                    <span>Avance</span>
+                    <strong th:text="${#numbers.formatDecimal(ahorro.porcentajeAvance, 1, 'POINT', 0, 'COMMA') + ' %'}">0 %</strong>
+                </div>
+                <div class="saving-progress" th:style="${'--progress:' + ahorro.porcentajeAvance + '%'}">
+                    <span></span>
+                </div>
+            </div>
+
+            <p class="saving-note" th:if="${ahorro.estadoVisual == 'COMPLETADA'}">
+                <i class="bi bi-check-circle"></i>
+                Objetivo alcanzado.
+            </p>
+
+            <div class="saving-actions">
+                <a class="soft-action" th:href="@{/ahorros/{id}(id=${ahorro.idAhorro})}">
+                    <i class="bi bi-eye"></i>
+                    <span>Detalle</span>
+                </a>
+                <a class="soft-action" th:href="@{/ahorros/editar/{id}(id=${ahorro.idAhorro})}">
+                    <i class="bi bi-pencil"></i>
+                    <span>Editar</span>
+                </a>
+                <button class="soft-action" type="button"
+                        th:classappend="${ahorro.activo} ? ' danger-action' : ''"
+                        data-bs-toggle="modal"
+                        data-bs-target="#savingStatusModal"
+                        th:data-status-url="@{/ahorros/{id}/estado(id=${ahorro.idAhorro})}"
+                        th:data-saving-name="${ahorro.nombre}"
+                        th:data-saving-active="${ahorro.activo}">
+                    <i th:class="${ahorro.activo} ? 'bi bi-pause-circle' : 'bi bi-check-circle'"></i>
+                    <span th:text="${ahorro.activo} ? 'Desactivar' : 'Activar'">Estado</span>
+                </button>
+            </div>
+        </article>
+    </section>
+
+    <section class="empty-state" th:if="${#lists.isEmpty(ahorros)}">
+        <i class="bi bi-piggy-bank"></i>
+        <strong th:text="${hayFiltros} ? 'No se encontraron metas' : 'Todavia no tienes metas de ahorro'">Todavia no tienes metas de ahorro</strong>
+        <span th:text="${hayFiltros} ? 'Ajusta los filtros o limpia la busqueda para ver mas resultados.' : 'Crea tu primera meta para hacer seguimiento de tus objetivos.'">
+            Crea tu primera meta.
+        </span>
+        <div class="empty-actions">
+            <a class="soft-action primary-action" th:href="@{/ahorros/nuevo}" th:if="${!hayFiltros}">
+                <i class="bi bi-plus-lg"></i>
+                <span>Crear primera meta</span>
+            </a>
+            <a class="soft-action" th:href="@{/ahorros}" th:if="${hayFiltros}">
+                <i class="bi bi-x-lg"></i>
+                <span>Limpiar filtros</span>
+            </a>
+        </div>
+    </section>
+
+    <div class="modal fade" id="savingStatusModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5" data-saving-status-title>Cambiar estado</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <p data-saving-status-message>Confirma el cambio de estado de la meta.</p>
+                    <strong data-saving-label></strong>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="soft-action" data-bs-dismiss="modal">Cancelar</button>
+                    <form method="post" data-saving-status-form>
+                        <button type="submit" class="soft-action primary-action" data-saving-status-button>
+                            <i class="bi bi-check2"></i>
+                            <span>Confirmar</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</html>

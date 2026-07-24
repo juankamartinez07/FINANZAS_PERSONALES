@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layout :: layout('Detalle de gasto fijo', ~{::section})}">
+<section class="fixed-expenses-page">
+    <div class="page-heading">
+        <div>
+            <p class="eyebrow">Detalle de gasto fijo</p>
+            <h1 th:text="${gastoFijo.nombre}">Gasto fijo</h1>
+            <p class="page-description">Consulta la plantilla mensual y su proxima fecha estimada de pago.</p>
+        </div>
+        <div class="heading-actions">
+            <a class="soft-action" th:href="@{/gastosfijos}">
+                <i class="bi bi-arrow-left"></i>
+                <span>Volver</span>
+            </a>
+            <a class="soft-action primary-action" th:href="@{/gastosfijos/editar/{id}(id=${gastoFijo.idGastoFijo})}">
+                <i class="bi bi-pencil"></i>
+                <span>Editar</span>
+            </a>
+        </div>
+    </div>
+
+    <section class="fixed-detail-hero" th:classappend="${' state-' + #strings.toLowerCase(#strings.replace(gastoFijo.estadoVisual, ' ', '-'))}">
+        <div>
+            <span class="fixed-state-pill" th:classappend="${' state-' + #strings.toLowerCase(#strings.replace(gastoFijo.estadoVisual, ' ', '-'))}">
+                <i th:class="${gastoFijo.estadoVisual == 'INACTIVO' ? 'bi bi-pause-circle' : (gastoFijo.estadoVisual == 'VENCE HOY' ? 'bi bi-exclamation-circle' : (gastoFijo.estadoVisual == 'PROXIMO' ? 'bi bi-clock' : 'bi bi-calendar-check'))}"></i>
+                <span th:text="${gastoFijo.estadoVisual}">PENDIENTE</span>
+            </span>
+            <h2 th:text="${gastoFijo.nombreConcepto}">Concepto</h2>
+            <span th:text="${gastoFijo.nombreCuenta}">Cuenta</span>
+        </div>
+        <strong th:text="${'$ ' + #numbers.formatDecimal(gastoFijo.valor, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+    </section>
+
+    <section class="fixed-detail-grid">
+        <article>
+            <span>Valor mensual</span>
+            <strong th:text="${'$ ' + #numbers.formatDecimal(gastoFijo.valor, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+        </article>
+        <article>
+            <span>Cuenta</span>
+            <strong th:text="${gastoFijo.nombreCuenta}">Cuenta</strong>
+        </article>
+        <article>
+            <span>Concepto</span>
+            <strong th:text="${gastoFijo.nombreConcepto}">Concepto</strong>
+        </article>
+        <article>
+            <span>Dia de pago</span>
+            <strong th:text="${gastoFijo.diaPago}">1</strong>
+        </article>
+        <article>
+            <span>Fecha de inicio</span>
+            <strong>Sin fecha</strong>
+        </article>
+        <article>
+            <span>Proxima fecha estimada</span>
+            <strong th:text="${#temporals.format(gastoFijo.proximaFechaPago, 'dd/MM/yyyy')}">15/08/2026</strong>
+        </article>
+        <article>
+            <span>Dias restantes</span>
+            <strong th:text="${gastoFijo.diasParaPago == 0 ? 'Hoy' : gastoFijo.diasParaPago + ' dias'}">0 dias</strong>
+        </article>
+        <article>
+            <span>Estado</span>
+            <strong th:text="${gastoFijo.estadoVisual}">PENDIENTE</strong>
+        </article>
+    </section>
+
+    <section class="fixed-detail-panel">
+        <div class="panel-header">
+            <div>
+                <h2>Plantilla recurrente</h2>
+                <p>Este registro funciona como una plantilla. No genera transacciones automaticamente.</p>
+            </div>
+        </div>
+    </section>
+
+    <div class="fixed-detail-actions">
+        <a class="soft-action" th:href="@{/gastosfijos}">
+            <i class="bi bi-arrow-left"></i>
+            <span>Volver</span>
+        </a>
+        <a class="soft-action primary-action" th:href="@{/gastosfijos/editar/{id}(id=${gastoFijo.idGastoFijo})}">
+            <i class="bi bi-pencil"></i>
+            <span>Editar</span>
+        </a>
+        <form method="post" th:action="@{/gastosfijos/{id}/estado(id=${gastoFijo.idGastoFijo})}" data-fixed-inline-status>
+            <button class="soft-action" type="submit" th:classappend="${gastoFijo.activo} ? ' danger-action' : ''"
+                    th:data-fixed-active="${gastoFijo.activo}">
+                <i th:class="${gastoFijo.activo} ? 'bi bi-pause-circle' : 'bi bi-check-circle'"></i>
+                <span th:text="${gastoFijo.activo} ? 'Desactivar' : 'Activar'">Estado</span>
+            </button>
+        </form>
+    </div>
+</section>
+</html>
